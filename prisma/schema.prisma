@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  name         String
+  email        String         @unique
+  password     String
+  lastLogin    DateTime       @default(now())
+  phone        String?
+  theme        ThemeEnum      @default(LIGHT)
+  sidebarOpen  Boolean        @default(true)
+  shortName    String         @default("")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  imageUrl     String?
+  Appointment  Appointment[]
+  Collaborator Collaborator[]
+  Shop         Shop[]
+
+  @@index([email])
+}
+
+model Shop {
+  id               Int            @id @default(autoincrement())
+  ownerId          Int
+  name             String
+  description      String?
+  address          String
+  shortName        String
+  logoUrl          String?
+  backgroundUrl    String?
+  templateId       String?
+  primaryColor     String?
+  secondaryColor   String?
+  subdomain        String         @unique
+  createdAt        DateTime       @default(now())
+  lastAccess       DateTime       @default(now())
+  updatedAt        DateTime       @default(now())
+  emailReminders   Boolean        @default(true)
+  isMaintenance    Boolean        @default(false)
+  emailCompany     String?
+  facebookCompany  String?
+  instagramCompany String?
+  Appointment      Appointment[]
+  Clients          Client[]
+  Collaborator     Collaborator[]
+  Schedule         Schedule[]
+  Service          Service[]
+  User             User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ShopSchedule     ShopSchedule[]
+
+  @@index([ownerId, subdomain])
+}
+
+model ShopSchedule {
+  id         Int       @id @default(autoincrement())
+  shopId     Int
+  dayOfWeek  DayOfWeek
+  startTime  String?
+  endTime    String?
+  breakStart String?
+  breakEnd   String?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  Shop       Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, dayOfWeek])
+  @@index([shopId, dayOfWeek])
+}
+
+model Collaborator {
+  id                  Int                   @id @default(autoincrement())
+  shopId              Int
+  userId              Int
+  role                CollaboratorRole
+  status              InviteStatus          @default(PENDING)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now()) @updatedAt
+  isActive            Boolean               @default(true)
+  Shop                Shop                  @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  User                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  CollaboratorService CollaboratorService[]
+  Schedule            Schedule[]
+
+  @@unique([shopId, userId])
+}
+
+model Service {
+  id                  Int                   @id @default(autoincrement())
+  shopId              Int
+  name                String
+  description         String?
+  imageUrl            String?
+  order               Int                   @default(autoincrement())
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now()) @updatedAt
+  isActive            Boolean               @default(true)
+  color               String                @default("#7B4DFF")
+  Appointment         Appointment[]
+  CollaboratorService CollaboratorService[]
+  Shop                Shop                  @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId])
+}
+
+model CollaboratorService {
+  id             Int          @id @default(autoincrement())
+  serviceId      Int
+  price          Int
+  duration       Int
+  isActive       Boolean      @default(true)
+  notes          String?
+  collaboratorId Int
+  Collaborator   Collaborator @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
+  Service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([collaboratorId, serviceId])
+  @@index([collaboratorId, serviceId])
+}
+
+model Client {
+  id          Int           @id @default(autoincrement())
+  shopId      Int
+  name        String
+  email       String        @unique
+  phone       String?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  Appointment Appointment[]
+  Shop        Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, email])
+  @@index([shopId, phone])
+}
+
+model Appointment {
+  id                 Int               @id @default(autoincrement())
+  shopId             Int
+  clientId           Int
+  serviceId          Int
+  status             AppointmentStatus @default(PENDING)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @default(now()) @updatedAt
+  cancellationReason String?
+  clientFeedback     String?
+  clientRating       Int?
+  duration           Int
+  notes              String?
+  price              Int
+  collaboratorId     Int
+  end                DateTime
+  start              DateTime
+  Client             Client            @relation(fields: [clientId], references: [id])
+  User               User              @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
+  Service            Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  Shop               Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, clientId, collaboratorId, serviceId, start])
+  @@index([status, start, end])
+}
+
+model Schedule {
+  id           Int           @id @default(autoincrement())
+  shopId       Int
+  barberId     Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  dayOfWeek    DayOfWeek
+  startTime    DateTime
+  endTime      DateTime
+  breakStart   DateTime?
+  breakEnd     DateTime?
+  Collaborator Collaborator? @relation(fields: [barberId], references: [id])
+  Shop         Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@index([shopId, barberId])
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELED
+}
+
+enum CollaboratorRole {
+  OWNER
+  MEMBER
+  BARBER
+  MANAGER
+  RECEPTIONIST
+}
+
+enum ThemeEnum {
+  LIGHT
+  DARK
+}

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Service" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;

@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+
+    /* js files lives here */
+    "rootDir": "./src",
+
+    /* ts file resides here */
+    // Habilitar a interoperabilidade de módulos
+    "esModuleInterop": true,
+
+    // Ignorar verificação de tipo em arquivos de definição
+    "skipLibCheck": true,
+
+    "sourceMap": true,
+    "inlineSources": true,
+
+    // Set `sourceRoot` to  "/" to strip the build path prefix
+    // from generated source code references.
+    // This improves issue grouping in Sentry.
+    "sourceRoot": "/",
+    "typeRoots": ["./src/types", "./node_modules/@types"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
