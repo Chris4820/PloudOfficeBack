@@ -15,6 +15,7 @@ import { UpdatePositionAppointmentSchema } from "../modules/calendar/schema/upda
 import { createEventSchema } from "../modules/calendar/schema/create-appointment";
 import { GetClientController } from "../modules/client/client.controller";
 import { GetStatsStoreController } from "../modules/statistic/statistic.controller";
+import { CreateNewAppointmentExternalController } from "../modules/appointment/appointment.controller";
 
 
 //Verifica userId e storeId

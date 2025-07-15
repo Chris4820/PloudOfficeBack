@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8">
+    <title>Marcação confirmada</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 2rem;
+        color: #333;
+      }
+      .email-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+      h1 {
+        color: #2c3e50;
+      }
+      p {
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+      .button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background-color: #e74c3c;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 1.5rem;
+      }
+      .footer {
+        font-size: 0.9rem;
+        color: #999;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <h1>Olá {{ userName }} 👋</h1>
+      <p>A tua marcação foi confirmada com sucesso em
+        <strong>{{ storeName }}</strong>.</p>
+      <p>
+        <strong>Serviço:</strong>
+        {{ serviceName }}<br>
+        <strong>Profissional:</strong>
+        {{ collaboratorName }}<br>
+        <strong>Data:</strong>
+        {{ startDate }}
+      </p>
+      <p>Se por algum motivo não conseguires comparecer, podes cancelar a marcação em qualquer altura através do botão abaixo:</p>
+      <a href="{{ cancelLink }}" class="button">Cancelar marcação</a>
+      <p class="footer">Obrigado por escolheres a {{ storeName }}. Até breve!</p>
+    </div>
+  </body>
+</html>

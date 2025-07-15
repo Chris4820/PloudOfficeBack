@@ -1,0 +1,1 @@
+{"version":3,"file":"user.type.js","sourceRoot":"/","sources":["modules/user/types/user.type.ts"],"names":[],"mappings":"","sourcesContent":["\r\n\r\nexport type CreateUserProps = {\r\n  name: string,\r\n  email: string,\r\n  password: string,\r\n  shortName: string,\r\n\r\n}"]}

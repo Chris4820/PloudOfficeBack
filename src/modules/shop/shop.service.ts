@@ -151,3 +151,17 @@ export async function updateScheduleStore(storeId: number, data: UpdateScheduleS
   );
 }
 
+export async function getStoreByDomain(storeDomain: string) {
+  return await prisma.shop.findUnique({
+    where: {
+      subdomain: storeDomain,
+    },
+    select: {
+      id: true,
+      name: true,
+      shortName: true,
+      logoUrl: true,
+    }
+  })
+}
+

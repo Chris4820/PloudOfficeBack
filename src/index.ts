@@ -6,6 +6,9 @@ import { AuthMiddleware } from './middleware/auth.middleware';
 import userRouter from './routes/userRoutes';
 import storeRouter from './routes/storeRoutes';
 import { StoreMiddleware } from './middleware/store.middleware';
+import externalRouter from './routes/store-external.router';
+import nunjucks from 'nunjucks';
+import path from 'path';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,8 +22,22 @@ app.get('/', (req, res) => {
   return res.status(200).json({ message: 'Ok' })
 })
 
+function ConfigureNjkLocalDevelopment() {
+  app.set('views', path.join(__dirname, '/views'));
+
+  nunjucks.configure('views', {
+    autoescape: true,
+    express: app,
+    noCache: true,
+  })
+  app.set('view engine', 'njk')
+}
+ConfigureNjkLocalDevelopment();
+
+
 
 app.use('/api', authRouter);
+app.use('/api', externalRouter);
 app.use('/api', AuthMiddleware, userRouter)
 app.use('/api', AuthMiddleware, StoreMiddleware, storeRouter)
 

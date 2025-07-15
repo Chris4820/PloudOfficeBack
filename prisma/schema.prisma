@@ -134,7 +134,7 @@ model Client {
   phone       String?
   notes       String?
   createdAt   DateTime      @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime      @default(now()) @updatedAt
   Appointment Appointment[]
   Shop        Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
@@ -146,6 +146,7 @@ model Appointment {
   id                 Int               @id @default(autoincrement())
   shopId             Int
   clientId           Int
+  uuid               String?           @default(cuid())
   serviceId          Int
   status             AppointmentStatus @default(PENDING)
   createdAt          DateTime          @default(now())
