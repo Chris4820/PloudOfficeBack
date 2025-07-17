@@ -37,7 +37,7 @@ export async function CreateNewAppointmentExternalController(req: Request, res: 
 
     const rawHeader = req.get('X-Site-Origin');
     const storeDomain = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
-    const store = await getStoreByDomain(storeDomain ? storeDomain : 'localhost');
+    const store = await getStoreByDomain(storeDomain === 'localhost' ? 'barber.ploudstore.com' : storeDomain);
     if (!store) {
       return res.status(400).json({ message: 'Essa loja não existe' })
     };
