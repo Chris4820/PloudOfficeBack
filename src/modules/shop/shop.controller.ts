@@ -41,10 +41,10 @@ export async function CreateShopController(req: Request, res: Response, next: Ne
       address: data.address,
       phone: data.phone,
       shopType: data.storeType as ShopTypeEnum,
-      subdomain: data.subdomain,
+      subdomain: data.subdomain + '.ploudoffice.com',
       shortName: await generateShortName(data.name),
     }
-    await createShop(req.userId, currentStore, data.shopSchedule);
+    await createShop(req.userId, currentStore);
     return res.status(201).json({ message: 'Loja criada com sucesso!' })
   } catch (error) {
     next(error)

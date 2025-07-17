@@ -1,7 +1,9 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../../libs/prisma";
 import type { UpdateScheduleStoreFormData } from "./schema/update-schedule.schema";
 import type { UpdateSettingsFormData } from "./schema/update-shop.schema";
 import type { CreateShopProps } from "./shop.types";
+import { ConflictException } from "../../commons/errors/custom.error";
 
 
 
@@ -86,28 +88,47 @@ export async function getStoreById(storeId: number) {
   })
 }
 
-export async function createShop(userId: number, data: CreateShopProps, shopSchedules: any) {
-  return await prisma.shop.create({
-    data: {
-      ownerId: userId,
-      address: data.address,
-      name: data.name,
-      shortName: data.shortName,
-      subdomain: data.subdomain,
-      Collaborator: {
-        create: {
-          role: 'OWNER',
-          userId: userId,
-          status: "ACCEPTED",
-        }
-      },
-      ShopSchedule: {
-        createMany: {
-          data: shopSchedules,
+export async function createShop(userId: number, data: CreateShopProps) {
+  try {
+    return await prisma.shop.create({
+      data: {
+        ownerId: userId,
+        address: data.address,
+        name: data.name,
+        shortName: data.shortName,
+        subdomain: data.subdomain,
+        Collaborator: {
+          create: {
+            role: 'OWNER',
+            userId: userId,
+            status: "ACCEPTED",
+          }
+        },
+        ShopSchedule: {
+          createMany: {
+            data: [
+              { dayOfWeek: 'MONDAY', isActive: true, startTime: '09:00', breakStart: '13:00', breakEnd: '14:00', endTime: '19:00' },
+              { dayOfWeek: 'TUESDAY', isActive: true, startTime: '09:00', breakStart: '13:00', breakEnd: '14:00', endTime: '19:00' },
+              { dayOfWeek: 'WEDNESDAY', isActive: true, startTime: '09:00', breakStart: '13:00', breakEnd: '14:00', endTime: '19:00' },
+              { dayOfWeek: 'THURSDAY', isActive: true, startTime: '09:00', breakStart: '13:00', breakEnd: '14:00', endTime: '19:00' },
+              { dayOfWeek: 'FRIDAY', isActive: true, startTime: '09:00', breakStart: '13:00', breakEnd: '14:00', endTime: '19:00' },
+              { dayOfWeek: 'SATURDAY', isActive: false, startTime: '09:00', endTime: '13:00' },
+              { dayOfWeek: 'SUNDAY', isActive: false },
+            ],
+          }
         }
       }
+    })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        throw new ConflictException(`Já existe um registo com o mesmo domínio.`);
+      }
     }
-  })
+
+    // Outro erro inesperado
+    throw new Error('Erro ao criar loja.');
+  }
 }
 
 

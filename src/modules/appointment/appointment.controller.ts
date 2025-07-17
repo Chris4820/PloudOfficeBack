@@ -10,7 +10,7 @@ import { pt } from 'date-fns/locale';
 type AppointmentProps = {
   startDate: Date,
   endDate: Date | undefined,
-  storeDomain: 'barber.ploudoffice.com',
+  storeDomain: string,
   client: {
     name: string,
     email: string,
@@ -37,10 +37,7 @@ export async function CreateNewAppointmentExternalController(req: Request, res: 
 
     const rawHeader = req.get('X-Site-Origin');
     const storeDomain = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
-    if (!storeDomain) {
-      return res.status(200).json({ message: 'Loja não conhecida' })
-    };
-    const store = await getStoreByDomain('barber.ploudoffice.com');
+    const store = await getStoreByDomain(storeDomain ? storeDomain : 'localhost');
     if (!store) {
       return res.status(400).json({ message: 'Essa loja não existe' })
     };

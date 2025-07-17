@@ -24,8 +24,6 @@ export const CreateShopSchema = z.object({
 
   address: z
     .string({ message: 'O endereço é obrigatório.' }),
-
-  shopSchedule: shopScheduleSchema
 });
 
 export type CreateShopSchemaProps = z.infer<typeof CreateShopSchema>;
