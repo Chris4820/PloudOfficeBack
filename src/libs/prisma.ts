@@ -1,17 +1,8 @@
-// src/prisma.ts
-
 import { PrismaClient } from '@prisma/client';
+import { withOptimize } from "@prisma/extension-optimize";
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  });
-
-if (process.env.NODE_ENV === 'development') globalForPrisma.prisma = prisma;
+const prisma = new PrismaClient().$extends(
+  withOptimize({ apiKey: process.env.OPTIMIZE_API_KEY }),
+);
 
 export default prisma;
