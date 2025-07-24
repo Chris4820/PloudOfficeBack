@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateShopSchema = void 0;
 const zod_1 = require("zod");
-const schedule_schema_1 = require("../../../commons/schema/schedule.schema");
 // Schema para criação de loja
 exports.CreateShopSchema = zod_1.z.object({
     name: zod_1.z
@@ -21,6 +20,5 @@ exports.CreateShopSchema = zod_1.z.object({
         .string({ message: 'O número de telefone é obrigatório.' }),
     address: zod_1.z
         .string({ message: 'O endereço é obrigatório.' }),
-    shopSchedule: schedule_schema_1.shopScheduleSchema
 });
 //# sourceMappingURL=shop.schema.js.map

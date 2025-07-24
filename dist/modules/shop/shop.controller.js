@@ -22,6 +22,8 @@ async function GetAllShopsController(req, res, next) {
 async function GetStoreInformationController(req, res, next) {
     try {
         const store = await (0, shop_service_1.getStoreById)(req.storeId);
+        store.logoUrl = store.logoUrl ? store.logoUrl + `?v=${store.updatedAt}` : null;
+        store.backgroundUrl = store.backgroundUrl ? store.backgroundUrl + `?v=${store.updatedAt}` : null;
         return res.status(200).json(store);
     }
     catch (error) {
@@ -37,10 +39,10 @@ async function CreateShopController(req, res, next) {
             address: data.address,
             phone: data.phone,
             shopType: data.storeType,
-            subdomain: data.subdomain,
+            subdomain: data.subdomain + '.ploudoffice.com',
             shortName: await (0, utils_1.generateShortName)(data.name),
         };
-        await (0, shop_service_1.createShop)(req.userId, currentStore, data.shopSchedule);
+        await (0, shop_service_1.createShop)(req.userId, currentStore);
         return res.status(201).json({ message: 'Loja criada com sucesso!' });
     }
     catch (error) {

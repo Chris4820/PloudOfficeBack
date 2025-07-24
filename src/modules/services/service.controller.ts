@@ -2,12 +2,11 @@ import type { NextFunction, Request, Response } from "express";
 import { CheckServiceIds, CreateService, getAllServices, getServiceById, GetServicesByCollaborator, updateImageUrlService, updateService, updateServiceOrder } from "./service.service";
 import { BadRequestException, ConflictException } from "../../commons/errors/custom.error";
 import type { EditServiceFormData } from "./schema/update-service.schema";
-import { CheckPropsImage, generateImageUrl, generateSignedUrl } from "../../utils/images/image.util";
-import { deleteImageFromBucket } from "../../libs/r2.lib";
 import type { CreateServiceFormData } from "./schema/create-service.schema";
 import { PriceToCentsUtil } from "../../utils/format";
-import { getCollabId, GetServiceCollabProps } from "../collaborator/collaborator.service";
-import { updateImageIfExist } from "../../utils/images/update-image.util";
+import { getCollabId } from "../collaborator/collaborator.service";
+import { CheckAndGenerateServiceImageUrl, generateServiceSignedUrl } from "../../utils/images/upload-image";
+import { deleteImageFromBucket } from "../../libs/r2.lib";
 
 
 
@@ -62,10 +61,35 @@ export async function UpdateServiceController(req: Request, res: Response, next:
       throw new BadRequestException("Serviço nao encontrado");
     }
 
-    //Efetuar upload de imagem
+    if (!data.hasChangeImage) {
+      return res.status(200).json({ message: 'Serviço atualizado com sucesso' });
+    }
 
-    const signedUrl = await updateImageIfExist("service", service.imageUrl, data.hasChangeImage, data.image, service.id, req.storeId);
-    return res.status(200).json({ message: 'OkTeste', signedUrl: signedUrl });
+    //Modificou imagem
+
+    if (!data.image || !data.image.size || !data.image.type) {
+      //Eliminar imagem
+      await updateImageUrlService(req.storeId, service.id, null);
+      if (service.imageUrl) {
+        await deleteImageFromBucket(`${req.storeId}/service/${service.id}`);
+      }
+      return res.status(200).json({ message: 'Ok' });
+    }
+
+    const newImageUrl = await CheckAndGenerateServiceImageUrl(req.storeId, service.id, data.image);
+    if (!newImageUrl) {
+      throw new BadRequestException("Serviço atualizado, mas a imagem não é válida ou é muito grande");
+    }
+    //Se a imagem é válida, verificar se já existe uma imagem
+    const newsignedUrl = await generateServiceSignedUrl(req.storeId, service.id, data.image.type);
+    if (!newsignedUrl) {
+      throw new BadRequestException("Serviço atualizado, mas não foi possível fazer upload da imagem");
+    }
+
+    await updateImageUrlService(req.storeId, service.id, newImageUrl);
+
+
+    return res.status(200).json({ message: 'Serviço atualizado com sucesso', signedUrl: newsignedUrl });
   } catch (error) {
     next(error);
   }
@@ -86,9 +110,24 @@ export async function CreateServiceController(req: Request, res: Response, next:
       throw new BadRequestException("Nao foi possivel criar o serviço");
     }
 
-    const signedUrl = updateImageIfExist("service", undefined, data.hasChangeImage, data.image, service.id, req.storeId);
+    if (!data.hasChangeImage || !data.image || !data.image.size || !data.image.type) {
+      return res.status(200).json({ message: 'Serviço criado com sucesso' });
+    }
 
-    return res.status(200).json({ message: 'Ok', signedUrl });
+    const newImageUrl = await CheckAndGenerateServiceImageUrl(req.storeId, service.id, data.image);
+    if (!newImageUrl) {
+      throw new BadRequestException("Serviço criado, mas a imagem não é válida ou é muito grande");
+    }
+    //Se a imagem é válida, verificar se já existe uma imagem
+    const newsignedUrl = await generateServiceSignedUrl(req.storeId, service.id, data.image.type);
+    if (!newsignedUrl) {
+      throw new BadRequestException("Serviço criado, mas não foi possível fazer upload da imagem");
+    }
+
+    await updateImageUrlService(req.storeId, service.id, newImageUrl);
+
+    return res.status(200).json({ message: 'Ok', signedUrl: newsignedUrl });
+
   } catch (error) {
     next(error);
   }

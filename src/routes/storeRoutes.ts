@@ -13,9 +13,10 @@ import { CreateAppoitmentController, GetCalendarController, UpdateCalendarContro
 import { GetEventsCalendarSchema } from "../modules/calendar/schema/get-calendar.schema";
 import { UpdatePositionAppointmentSchema } from "../modules/calendar/schema/update-position.schema";
 import { createEventSchema } from "../modules/calendar/schema/create-appointment";
-import { GetClientController } from "../modules/client/client.controller";
+import { GetAllClientsController, GetClientController, GetClientDetailsController } from "../modules/client/client.controller";
 import { GetStatsStoreController } from "../modules/statistic/statistic.controller";
-import { CreateNewAppointmentExternalController } from "../modules/appointment/appointment.controller";
+import { updateDesignController } from "../modules/design/design.controller";
+import { UpdateDesignSchema } from "../modules/design/design.schema";
 
 
 //Verifica userId e storeId
@@ -53,10 +54,14 @@ storeRouter.post('/appointment', validateBody(createEventSchema), CreateAppoitme
 
 // Client
 storeRouter.get('/client', GetClientController);
+storeRouter.get('/clients', GetAllClientsController);
+storeRouter.get('/client/:id', GetClientDetailsController);
 
 
 
 storeRouter.get('/statistic', GetStatsStoreController);
+
+storeRouter.put('/design', validateBody(UpdateDesignSchema), updateDesignController);
 
 
 

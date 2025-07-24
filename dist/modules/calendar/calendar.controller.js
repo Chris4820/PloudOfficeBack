@@ -13,7 +13,7 @@ async function GetCalendarController(req, res, next) {
         if ((0, date_fns_1.isAfter)(data.start, data.end)) {
             throw new custom_error_1.BadRequestException('Data de ínicio nao pode ser depois da data de fim');
         }
-        const appointment = await (0, calendar_service_1.GetCalendar)(1, new Date(data.start), new Date(data.end));
+        const appointment = await (0, calendar_service_1.GetCalendar)(req.storeId, new Date(data.start), new Date(data.end));
         return res.status(200).json(appointment);
     }
     catch (error) {

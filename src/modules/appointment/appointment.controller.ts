@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { upsertClient } from "../client/client.service";
+import { UpdateLastVisit, upsertClient } from "../client/client.service";
 import { createBooking } from "./appointment.service";
 import { sendConfirmAppointment } from "../../commons/email/email.service";
 import { getStoreByDomain } from "../shop/shop.service";
@@ -102,8 +102,9 @@ export async function CreateNewAppointmentExternalController(req: Request, res: 
       startDate: formattedDate,
       storeName: store.name || "Loja nome",
       cancelLink: appointment.uuid || "",
-
     })
+
+    UpdateLastVisit(client.id, store.id, data.startDate);
 
     return res.status(200).json({ message: 'Marcação criada com sucesso' })
 

@@ -10,7 +10,8 @@ const service_service_1 = require("./service.service");
 const custom_error_1 = require("../../commons/errors/custom.error");
 const format_1 = require("../../utils/format");
 const collaborator_service_1 = require("../collaborator/collaborator.service");
-const update_image_util_1 = require("../../utils/images/update-image.util");
+const upload_image_1 = require("../../utils/images/upload-image");
+const r2_lib_1 = require("../../libs/r2.lib");
 async function UpdateOrderServiceController(req, res, next) {
     try {
         const ids = req.body;
@@ -54,9 +55,29 @@ async function UpdateServiceController(req, res, next) {
         if (!service) {
             throw new custom_error_1.BadRequestException("Serviço nao encontrado");
         }
-        //Efetuar upload de imagem
-        const signedUrl = await (0, update_image_util_1.updateImageIfExist)("service", service.imageUrl, data.hasChangeImage, data.image, service.id, req.storeId);
-        return res.status(200).json({ message: 'OkTeste', signedUrl: signedUrl });
+        if (!data.hasChangeImage) {
+            return res.status(200).json({ message: 'Serviço atualizado com sucesso' });
+        }
+        //Modificou imagem
+        if (!data.image || !data.image.size || !data.image.type) {
+            //Eliminar imagem
+            await (0, service_service_1.updateImageUrlService)(req.storeId, service.id, null);
+            if (service.imageUrl) {
+                await (0, r2_lib_1.deleteImageFromBucket)(`${req.storeId}/service/${service.id}`);
+            }
+            return res.status(200).json({ message: 'Ok' });
+        }
+        const newImageUrl = await (0, upload_image_1.CheckAndGenerateServiceImageUrl)(req.storeId, service.id, data.image);
+        if (!newImageUrl) {
+            throw new custom_error_1.BadRequestException("Serviço atualizado, mas a imagem não é válida ou é muito grande");
+        }
+        //Se a imagem é válida, verificar se já existe uma imagem
+        const newsignedUrl = await (0, upload_image_1.generateServiceSignedUrl)(req.storeId, service.id, data.image.type);
+        if (!newsignedUrl) {
+            throw new custom_error_1.BadRequestException("Serviço atualizado, mas não foi possível fazer upload da imagem");
+        }
+        await (0, service_service_1.updateImageUrlService)(req.storeId, service.id, newImageUrl);
+        return res.status(200).json({ message: 'Serviço atualizado com sucesso', signedUrl: newsignedUrl });
     }
     catch (error) {
         next(error);
@@ -71,8 +92,20 @@ async function CreateServiceController(req, res, next) {
         if (!service) {
             throw new custom_error_1.BadRequestException("Nao foi possivel criar o serviço");
         }
-        const signedUrl = (0, update_image_util_1.updateImageIfExist)("service", undefined, data.hasChangeImage, data.image, service.id, req.storeId);
-        return res.status(200).json({ message: 'Ok', signedUrl });
+        if (!data.hasChangeImage || !data.image || !data.image.size || !data.image.type) {
+            return res.status(200).json({ message: 'Serviço criado com sucesso' });
+        }
+        const newImageUrl = await (0, upload_image_1.CheckAndGenerateServiceImageUrl)(req.storeId, service.id, data.image);
+        if (!newImageUrl) {
+            throw new custom_error_1.BadRequestException("Serviço criado, mas a imagem não é válida ou é muito grande");
+        }
+        //Se a imagem é válida, verificar se já existe uma imagem
+        const newsignedUrl = await (0, upload_image_1.generateServiceSignedUrl)(req.storeId, service.id, data.image.type);
+        if (!newsignedUrl) {
+            throw new custom_error_1.BadRequestException("Serviço criado, mas não foi possível fazer upload da imagem");
+        }
+        await (0, service_service_1.updateImageUrlService)(req.storeId, service.id, newImageUrl);
+        return res.status(200).json({ message: 'Ok', signedUrl: newsignedUrl });
     }
     catch (error) {
         next(error);

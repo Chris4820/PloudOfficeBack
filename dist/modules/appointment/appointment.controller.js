@@ -19,11 +19,7 @@ async function CreateNewAppointmentExternalController(req, res, next) {
         console.log(data);
         const rawHeader = req.get('X-Site-Origin');
         const storeDomain = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
-        if (!storeDomain) {
-            return res.status(200).json({ message: 'Loja não conhecida' });
-        }
-        ;
-        const store = await (0, shop_service_1.getStoreByDomain)('barber.ploudoffice.com');
+        const store = await (0, shop_service_1.getStoreByDomain)(storeDomain === 'localhost' ? 'barber.ploudstore.com' : storeDomain);
         if (!store) {
             return res.status(400).json({ message: 'Essa loja não existe' });
         }
@@ -78,6 +74,7 @@ async function CreateNewAppointmentExternalController(req, res, next) {
             storeName: store.name || "Loja nome",
             cancelLink: appointment.uuid || "",
         });
+        (0, client_service_1.UpdateLastVisit)(client.id, store.id, data.startDate);
         return res.status(200).json({ message: 'Marcação criada com sucesso' });
     }
     catch (error) {

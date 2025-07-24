@@ -10,16 +10,16 @@ datasource db {
 model User {
   id           Int            @id @default(autoincrement())
   name         String
-  email        String         @unique //Index
+  email        String         @unique
   password     String
   lastLogin    DateTime       @default(now())
   phone        String?
   theme        ThemeEnum      @default(LIGHT)
-  sidebarOpen  Boolean        @default(true)
   shortName    String         @default("")
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @default(now()) @updatedAt
   imageUrl     String?
+  sidebarOpen  Boolean        @default(true)
   Appointment  Appointment[]
   Collaborator Collaborator[]
   Shop         Shop[]
@@ -40,7 +40,7 @@ model Shop {
   subdomain        String         @unique
   createdAt        DateTime       @default(now())
   lastAccess       DateTime       @default(now())
-  updatedAt        DateTime       @default(now())
+  updatedAt        DateTime       @default(now()) @updatedAt
   emailReminders   Boolean        @default(true)
   isMaintenance    Boolean        @default(false)
   emailCompany     String?
@@ -78,11 +78,11 @@ model Collaborator {
   id                  Int                   @id @default(autoincrement())
   shopId              Int
   userId              Int
-  role                CollaboratorRole
-  status              InviteStatus          @default(PENDING)
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @default(now()) @updatedAt
+  role                CollaboratorRole
   isActive            Boolean               @default(true)
+  status              InviteStatus          @default(PENDING)
   Shop                Shop                  @relation(fields: [shopId], references: [id], onDelete: Cascade)
   User                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   CollaboratorService CollaboratorService[]
@@ -127,26 +127,27 @@ model CollaboratorService {
 }
 
 model Client {
-  id          Int           @id @default(autoincrement())
-  shopId      Int
-  name        String
-  email       String        @unique
-  phone       String?
-  notes       String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @default(now()) @updatedAt
-  Appointment Appointment[]
-  Shop        Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  id              Int           @id @default(autoincrement())
+  shopId          Int
+  name            String
+  email           String        @unique
+  phone           String?
+  notes           String?
+  lastAppointment DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @default(now()) @updatedAt
+  Appointment     Appointment[]
+  Shop            Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
   @@index([shopId, email])
   @@index([shopId, phone])
+  @@index([shopId, id])
 }
 
 model Appointment {
   id                 Int               @id @default(autoincrement())
   shopId             Int
   clientId           Int
-  uuid               String?           @default(cuid())
   serviceId          Int
   status             AppointmentStatus @default(PENDING)
   createdAt          DateTime          @default(now())
@@ -160,6 +161,7 @@ model Appointment {
   collaboratorId     Int
   end                DateTime
   start              DateTime
+  uuid               String?           @default(cuid())
   Client             Client            @relation(fields: [clientId], references: [id])
   User               User              @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
   Service            Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
@@ -211,10 +213,10 @@ enum AppointmentStatus {
 
 enum CollaboratorRole {
   OWNER
-  MEMBER
   BARBER
   MANAGER
   RECEPTIONIST
+  MEMBER
 }
 
 enum ThemeEnum {

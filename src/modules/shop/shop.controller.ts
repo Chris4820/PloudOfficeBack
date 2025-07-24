@@ -6,8 +6,6 @@ import { generateShortName } from "../../utils/utils";
 import { BadRequestException, UnauthorizedException } from "../../commons/errors/custom.error";
 import { generateStoreJWT } from "../../commons/jwt/store.jwt";
 import type { UpdateSettingsFormData } from "./schema/update-shop.schema";
-import { object } from "zod";
-import type { DayOfWeek } from "@prisma/client";
 import type { UpdateScheduleStoreFormData } from "./schema/update-schedule.schema";
 
 
@@ -25,6 +23,8 @@ export async function GetAllShopsController(req: Request, res: Response, next: N
 export async function GetStoreInformationController(req: Request, res: Response, next: NextFunction) {
   try {
     const store = await getStoreById(req.storeId)
+    store.logoUrl = store.logoUrl ? store.logoUrl + `?v=${store.updatedAt}` : null;
+    store.backgroundUrl = store.backgroundUrl ? store.backgroundUrl + `?v=${store.updatedAt}` : null;
     return res.status(200).json(store);
   } catch (error) {
     next(error);

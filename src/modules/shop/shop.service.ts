@@ -72,8 +72,13 @@ export async function getStoreById(storeId: number) {
       instagramCompany: true,
       facebookCompany: true,
       address: true,
+      logoUrl: true,
+      backgroundUrl: true,
+      primaryColor: true,
+      secondaryColor: true,
       emailCompany: true,
       isMaintenance: true,
+      updatedAt: true,
       ShopSchedule: {
         select: {
           dayOfWeek: true,

@@ -20,7 +20,7 @@ export async function GetCalendarController(req: Request, res: Response, next: N
       throw new BadRequestException('Data de ínicio nao pode ser depois da data de fim');
     }
 
-    const appointment = await GetCalendar(1, new Date(data.start), new Date(data.end));
+    const appointment = await GetCalendar(req.storeId, new Date(data.start), new Date(data.end));
     return res.status(200).json(appointment)
   } catch (error) {
     next(error)

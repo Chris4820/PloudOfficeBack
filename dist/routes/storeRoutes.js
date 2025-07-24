@@ -17,6 +17,8 @@ const update_position_schema_1 = require("../modules/calendar/schema/update-posi
 const create_appointment_1 = require("../modules/calendar/schema/create-appointment");
 const client_controller_1 = require("../modules/client/client.controller");
 const statistic_controller_1 = require("../modules/statistic/statistic.controller");
+const design_controller_1 = require("../modules/design/design.controller");
+const design_schema_1 = require("../modules/design/design.schema");
 //Verifica userId e storeId
 const storeRouter = (0, express_1.Router)();
 storeRouter.get('/shop/information', shop_controller_1.GetStoreInformationController);
@@ -42,6 +44,9 @@ storeRouter.patch('/appointment/:id', (0, validate_middleware_1.validateParam)()
 storeRouter.post('/appointment', (0, validate_middleware_1.validateBody)(create_appointment_1.createEventSchema), calendar_controller_1.CreateAppoitmentController);
 // Client
 storeRouter.get('/client', client_controller_1.GetClientController);
+storeRouter.get('/clients', client_controller_1.GetAllClientsController);
+storeRouter.get('/client/:id', client_controller_1.GetClientDetailsController);
 storeRouter.get('/statistic', statistic_controller_1.GetStatsStoreController);
+storeRouter.put('/design', (0, validate_middleware_1.validateBody)(design_schema_1.UpdateDesignSchema), design_controller_1.updateDesignController);
 exports.default = storeRouter;
 //# sourceMappingURL=storeRoutes.js.map
