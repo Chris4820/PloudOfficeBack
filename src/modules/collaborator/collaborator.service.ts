@@ -181,3 +181,32 @@ export async function CreateCollaborator(storeId: number, userId: number, role: 
     }
   })
 }
+
+export async function GetAllCollabsFromService(storeId: number, serviceId: number) {
+  return await prisma.collaboratorService.findMany({
+    where: {
+      serviceId,
+      isActive: true,
+      Collaborator: {
+        shopId: storeId,
+      }
+    },
+    select: {
+      id: true,
+      Collaborator: {
+        select: {
+          User: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            }
+          }
+
+        }
+      },
+      collaboratorId: true,
+      duration: true,
+    }
+  })
+}

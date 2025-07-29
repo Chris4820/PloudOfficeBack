@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { CheckRoleCollaborator, CreateCollaborator, CreateOrUpdateServiceCollabProps, GetAllColaborators, GetAllInvitesCollabs, getCollabId, GetCollaboratorDetails, GetServiceCollabProps } from "./collaborator.service";
+import { CheckRoleCollaborator, CreateCollaborator, CreateOrUpdateServiceCollabProps, GetAllColaborators, GetAllCollabsFromService, GetAllInvitesCollabs, getCollabId, GetCollaboratorDetails, GetServiceCollabProps } from "./collaborator.service";
 import { BadRequestException, UnauthorizedException } from "../../commons/errors/custom.error";
 import type { EditServiceCollabFormData } from "../schema/collaborator.schema";
 import { CentsToPriceUtil, PriceToCentsUtil } from "../../utils/format";
@@ -134,6 +134,18 @@ export async function GetInvitesCollabsController(req: Request, res: Response, n
     console.log("Bateu aqui");
     const invites = await GetAllInvitesCollabs(req.storeId);
     return res.status(200).json(invites);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function GetAllCollabsFromServiceController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+
+    const collabs = await GetAllCollabsFromService(req.storeId, Number(id));
+
+    return res.status(200).json(collabs)
   } catch (error) {
     next(error);
   }

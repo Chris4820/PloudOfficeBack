@@ -82,7 +82,10 @@ async function CreateAppointment(storeId, data, dataProps) {
             Client: {
                 connectOrCreate: {
                     where: {
-                        email: dataProps.Client.email
+                        shopId_email: {
+                            shopId: storeId,
+                            email: dataProps.Client.email,
+                        }
                     },
                     create: {
                         name: dataProps.Client.name,

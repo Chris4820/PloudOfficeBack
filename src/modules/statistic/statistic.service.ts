@@ -19,6 +19,9 @@ export async function getStatisticStore(storeId: number, range?: GetStatStorePro
     }
   }
 
+  console.log(range.start)
+  console.log(range.end)
+
   const appointments = await prisma.appointment.findMany({
     where: whereCondition,
     select: {
@@ -27,13 +30,7 @@ export async function getStatisticStore(storeId: number, range?: GetStatStorePro
   })
 
   const newClientsCount = await prisma.client.count({
-    where: {
-      shopId: storeId,
-      createdAt: {
-        gte: range?.start,
-        lte: range?.end,
-      },
-    },
+    where: whereCondition,
   })
 
   const totalAppointments = appointments.length

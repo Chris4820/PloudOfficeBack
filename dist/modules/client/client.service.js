@@ -35,8 +35,10 @@ async function findClientByEmail(storeId, name) {
 async function upsertClient(shopId, name, email, notes, phone) {
     return await prisma_1.default.client.upsert({
         where: {
-            shopId,
-            email,
+            shopId_email: {
+                shopId,
+                email,
+            }
         },
         create: {
             email,

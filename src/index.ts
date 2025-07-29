@@ -9,6 +9,7 @@ import { StoreMiddleware } from './middleware/store.middleware';
 import externalRouter from './routes/store-external.router';
 import nunjucks from 'nunjucks';
 import path from 'path';
+import prisma from './libs/prisma';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -35,6 +36,15 @@ function ConfigureNjkLocalDevelopment() {
 ConfigureNjkLocalDevelopment();
 
 
+app.get('/teste', async (req, res) => {
+  try {
+    const count = await prisma.client.count()
+    res.json({ totalClientes: count })
+  } catch (error) {
+    console.error('Erro ao contar clientes:', error)
+    res.status(500).json({ erro: 'Erro ao contar clientes' })
+  }
+})
 
 app.use('/api', authRouter);
 app.use('/api', externalRouter);

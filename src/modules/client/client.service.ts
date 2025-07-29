@@ -25,36 +25,6 @@ export async function findClientByEmail(storeId: number, name?: string) {
   });
 }
 
-export async function upsertClient(shopId: number, name: string, email: string, notes: string, phone: string) {
-  return await prisma.client.upsert({
-    where: {
-      shopId,
-      email,
-    },
-    create: {
-      email,
-      name,
-      updatedAt: new Date(),
-      notes,
-      phone,
-      shopId,
-    },
-    update: {
-      email,
-      name,
-      updatedAt: new Date(),
-      notes,
-      phone,
-      shopId,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-    }
-  })
-}
-
 export async function GetAllClients(shopId: number, page: number, orderBy: string, status: string) {
   const sixMonthsAgo = subMonths(new Date(), 6);
   return await prisma.client.findMany({
@@ -123,17 +93,12 @@ export async function getClientById(clientId: number, shopId: number) {
       phone: true,
       createdAt: true,
       lastAppointment: true,
-      _count: {
-        select: {
-          Appointment: true,
-        }
-      }
     }
   })
 }
 
 export async function getClientAppoinmentsStatusCount(clientId: number, shopId: number) {
-  return await prisma.appointment.groupBy({
+  const appointments = await prisma.appointment.groupBy({
     by: ['status'],
     where: {
       shopId,
@@ -143,5 +108,10 @@ export async function getClientAppoinmentsStatusCount(clientId: number, shopId: 
       status: true,
     },
   });
+  const total = appointments.reduce((sum, item) => sum + item._count.status, 0);
+  return {
+    total,
+    appointments,
+  }
 }
 

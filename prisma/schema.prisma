@@ -130,7 +130,7 @@ model Client {
   id              Int           @id @default(autoincrement())
   shopId          Int
   name            String
-  email           String        @unique
+  email           String
   phone           String?
   notes           String?
   lastAppointment DateTime?
@@ -139,7 +139,7 @@ model Client {
   Appointment     Appointment[]
   Shop            Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
-  @@index([shopId, email])
+  @@unique([shopId, email])
   @@index([shopId, phone])
   @@index([shopId, id])
 }
@@ -169,6 +169,7 @@ model Appointment {
 
   @@index([shopId, clientId, collaboratorId, serviceId, start])
   @@index([status, start, end])
+  @@index([clientId, shopId])
 }
 
 model Schedule {
@@ -206,9 +207,9 @@ enum DayOfWeek {
 
 enum AppointmentStatus {
   PENDING
-  CONFIRMED
   COMPLETED
   CANCELED
+  MISSED
 }
 
 enum CollaboratorRole {

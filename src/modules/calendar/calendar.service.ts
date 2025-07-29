@@ -22,6 +22,7 @@ export async function GetCalendar(storeId: number, startDate: Date, endDate: Dat
       start: true,
       end: true,
       duration: true,
+      status: true,
       Client: {
         select: {
           id: true,
@@ -70,49 +71,5 @@ export async function UpdatePositionAppointment(storeId: number, id: number, dat
       end: data.end,
     }
   })
-}
-
-export async function CreateAppointment(storeId: number, data: AppointmentType, dataProps: CreateEventFormData) {
-  return await prisma.appointment.create({
-    data: {
-      Shop: {
-        connect: {
-          id: storeId
-        }
-      },
-      User: {
-        connect: {
-          id: data.collabId
-        }
-      },
-      Client: {
-        connectOrCreate: {
-          where: {
-            email: dataProps.Client.email
-          },
-          create: {
-            name: dataProps.Client.name,
-            email: dataProps.Client.email,
-            notes: dataProps.Client.notes,
-            updatedAt: new Date(),
-            Shop: {
-              connect: {
-                id: storeId
-              }
-            }
-          }
-        }
-      },
-      Service: {
-        connect: {
-          id: data.serviceId,
-        }
-      },
-      end: data.end,
-      price: 15,
-      duration: data.duration,
-      start: data.start,
-    }
-  });
 }
 

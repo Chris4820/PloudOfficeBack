@@ -10,9 +10,11 @@ export async function GetStatsStoreController(req: Request, res: Response, next:
     const from = start ? new Date(start as string) : undefined;
     const to = end ? new Date(end as string) : undefined;
     console.log(from);
-    const statistic = await getStatisticStore(req.storeId, { start: from, end: to });
-    const top = await getTopServices(req.storeId, { start: from, end: to });
-    const employed = await getTopEmployees(req.storeId, { start: from, end: to })
+    const [statistic, top, employed] = await Promise.all([
+      getStatisticStore(req.storeId, { start: from, end: to }),
+      getTopServices(req.storeId, { start: from, end: to }),
+      getTopEmployees(req.storeId, { start: from, end: to }),
+    ]);
     return res.status(200).json({
       statistic: {
         statistic,
