@@ -8,10 +8,13 @@ import type { AppointmentType } from "./types/appointment.type";
 
 
 
-export async function GetCalendar(storeId: number, startDate: Date, endDate: Date) {
+export async function GetCalendar(storeId: number, collabId: number, startDate: Date, endDate: Date) {
   return await prisma.appointment.findMany({
     where: {
       shopId: storeId,
+      User: {
+        id: collabId,
+      },
       start: {
         gte: startDate,
         lte: endDate,

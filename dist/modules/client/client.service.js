@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.findClientByEmail = findClientByEmail;
-exports.upsertClient = upsertClient;
 exports.GetAllClients = GetAllClients;
 exports.CountAllClients = CountAllClients;
 exports.UpdateLastVisit = UpdateLastVisit;
@@ -30,37 +29,6 @@ async function findClientByEmail(storeId, name) {
             notes: true,
         },
         take: 5,
-    });
-}
-async function upsertClient(shopId, name, email, notes, phone) {
-    return await prisma_1.default.client.upsert({
-        where: {
-            shopId_email: {
-                shopId,
-                email,
-            }
-        },
-        create: {
-            email,
-            name,
-            updatedAt: new Date(),
-            notes,
-            phone,
-            shopId,
-        },
-        update: {
-            email,
-            name,
-            updatedAt: new Date(),
-            notes,
-            phone,
-            shopId,
-        },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-        }
     });
 }
 async function GetAllClients(shopId, page, orderBy, status) {
@@ -128,16 +96,11 @@ async function getClientById(clientId, shopId) {
             phone: true,
             createdAt: true,
             lastAppointment: true,
-            _count: {
-                select: {
-                    Appointment: true,
-                }
-            }
         }
     });
 }
 async function getClientAppoinmentsStatusCount(clientId, shopId) {
-    return await prisma_1.default.appointment.groupBy({
+    const appointments = await prisma_1.default.appointment.groupBy({
         by: ['status'],
         where: {
             shopId,
@@ -147,5 +110,10 @@ async function getClientAppoinmentsStatusCount(clientId, shopId) {
             status: true,
         },
     });
+    const total = appointments.reduce((sum, item) => sum + item._count.status, 0);
+    return {
+        total,
+        appointments,
+    };
 }
 //# sourceMappingURL=client.service.js.map

@@ -19,6 +19,8 @@ const client_controller_1 = require("../modules/client/client.controller");
 const statistic_controller_1 = require("../modules/statistic/statistic.controller");
 const design_controller_1 = require("../modules/design/design.controller");
 const design_schema_1 = require("../modules/design/design.schema");
+const appointment_controller_1 = require("../modules/appointment/appointment.controller");
+const update_schema_1 = require("../modules/appointment/schema/update.schema");
 //Verifica userId e storeId
 const storeRouter = (0, express_1.Router)();
 storeRouter.get('/shop/information', shop_controller_1.GetStoreInformationController);
@@ -37,15 +39,21 @@ storeRouter.post('/collaborator/invite', collaborator_controller_1.CreateCollabo
 storeRouter.get('/collaborator/invite', collaborator_controller_1.GetInvitesCollabsController);
 storeRouter.get('/collaborator', collaborator_controller_1.GetAllColaboratorsController);
 storeRouter.get('/collaborator/:id', (0, validate_middleware_1.validateParam)(), collaborator_controller_1.GetCollabDetailsController);
+storeRouter.get('/collaborator/service/:id', (0, validate_middleware_1.validateParam)(), collaborator_controller_1.GetAllCollabsFromServiceController);
 //Calendar
 storeRouter.post('/calendar', (0, validate_middleware_1.validateBody)(get_calendar_schema_1.GetEventsCalendarSchema), calendar_controller_1.GetCalendarController);
 storeRouter.put('/calendar', calendar_controller_1.UpdateCalendarController);
+storeRouter.put('/appointment/:id', (0, validate_middleware_1.validateBody)(update_schema_1.editEventSchema), (0, validate_middleware_1.validateParam)(), appointment_controller_1.UpdateAppointmentController);
 storeRouter.patch('/appointment/:id', (0, validate_middleware_1.validateParam)(), (0, validate_middleware_1.validateBody)(update_position_schema_1.UpdatePositionAppointmentSchema), calendar_controller_1.UpdatePositionAppointmentController);
-storeRouter.post('/appointment', (0, validate_middleware_1.validateBody)(create_appointment_1.createEventSchema), calendar_controller_1.CreateAppoitmentController);
+storeRouter.get('/appointment/:id', (0, validate_middleware_1.validateParam)(), appointment_controller_1.GetAppointmentByIdController);
+storeRouter.post('/appointment', (0, validate_middleware_1.validateBody)(create_appointment_1.createEventSchema), appointment_controller_1.CreateNewAppoitmentInternalController);
+storeRouter.put('/appointment/status/:id', (0, validate_middleware_1.validateParam)(), appointment_controller_1.UpdateAppointmentStatusController);
+storeRouter.delete('/appointment/:id', (0, validate_middleware_1.validateParam)(), appointment_controller_1.DeleteAppointmentController);
 // Client
 storeRouter.get('/client', client_controller_1.GetClientController);
+storeRouter.get('/client/appointment/:id', (0, validate_middleware_1.validateParam)(), appointment_controller_1.GetAppointmentClientController);
 storeRouter.get('/clients', client_controller_1.GetAllClientsController);
-storeRouter.get('/client/:id', client_controller_1.GetClientDetailsController);
+storeRouter.get('/client/:id', (0, validate_middleware_1.validateParam)(), client_controller_1.GetClientDetailsController);
 storeRouter.get('/statistic', statistic_controller_1.GetStatsStoreController);
 storeRouter.put('/design', (0, validate_middleware_1.validateBody)(design_schema_1.UpdateDesignSchema), design_controller_1.updateDesignController);
 exports.default = storeRouter;

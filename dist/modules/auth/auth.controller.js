@@ -36,7 +36,7 @@ async function RegisterController(req, res, next) {
         //Verificar se o email já está registrado
         const user = await (0, user_service_1.isEmailExist)(data.email);
         if (user) {
-            throw new custom_error_1.ConflictException("Esse email já está registrado");
+            throw new custom_error_1.ConflictException("Esse email já está registado");
         }
         const currentUserData = {
             name: data.name,
@@ -45,7 +45,7 @@ async function RegisterController(req, res, next) {
             shortName: await (0, utils_1.generateShortName)(data.name),
         };
         await (0, user_service_1.createUser)(currentUserData);
-        return res.status(200).json({ message: 'Registrado com sucesso!' });
+        return res.status(200).json({ message: 'Registado com sucesso!' });
     }
     catch (error) {
         next(error);

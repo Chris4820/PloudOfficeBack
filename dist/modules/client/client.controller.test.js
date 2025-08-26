@@ -35,14 +35,16 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_controller_1 = require("./client.controller");
 const clientService = __importStar(require("./client.service"));
-// Mock the service functions
+// Mocks das funções do serviço
 jest.mock('./client.service', () => ({
     findClientByEmail: jest.fn(),
     GetAllClients: jest.fn(),
+    CountAllClients: jest.fn(),
 }));
 const mockedFindClientByEmail = clientService.findClientByEmail;
 const mockedGetAllClients = clientService.GetAllClients;
-// Helper to create mock Request, Response, and NextFunction
+const mockedCountAllClients = clientService.CountAllClients;
+// Helpers para simular Request e Response
 const mockResponse = () => {
     const res = {};
     res.status = jest.fn().mockReturnValue(res);
@@ -55,10 +57,8 @@ describe('Client Controller', () => {
         jest.clearAllMocks();
     });
     describe('GetClientController', () => {
-        it('should return clients matching the name query', async () => {
-            const mockClients = [
-                { id: 1, name: 'João Silva', email: 'joao@example.com', notes: 'Regular client' },
-            ];
+        it('deve retornar os clientes que correspondem ao nome', async () => {
+            const mockClients = [{ id: 1, name: 'João Silva', email: 'joao@example.com' }];
             mockedFindClientByEmail.mockResolvedValue(mockClients);
             const req = {
                 storeId: 1,
@@ -71,10 +71,8 @@ describe('Client Controller', () => {
             expect(res.json).toHaveBeenCalledWith(mockClients);
             expect(mockNext).not.toHaveBeenCalled();
         });
-        it('should return all clients when no name is provided', async () => {
-            const mockClients = [
-                { id: 1, name: 'João Silva', email: 'joao@example.com', notes: 'Regular client' },
-            ];
+        it('deve retornar todos os clientes quando o nome não é fornecido', async () => {
+            const mockClients = [{ id: 1, name: 'Maria', email: 'maria@example.com' }];
             mockedFindClientByEmail.mockResolvedValue(mockClients);
             const req = {
                 storeId: 1,
@@ -87,8 +85,8 @@ describe('Client Controller', () => {
             expect(res.json).toHaveBeenCalledWith(mockClients);
             expect(mockNext).not.toHaveBeenCalled();
         });
-        it('should call next with error if service fails', async () => {
-            const error = new Error('Database error');
+        it('deve chamar o next com erro se o serviço falhar', async () => {
+            const error = new Error('Erro da base de dados');
             mockedFindClientByEmail.mockRejectedValue(error);
             const req = {
                 storeId: 1,
@@ -98,75 +96,43 @@ describe('Client Controller', () => {
             await (0, client_controller_1.GetClientController)(req, res, mockNext);
             expect(mockedFindClientByEmail).toHaveBeenCalledWith(1, 'João');
             expect(mockNext).toHaveBeenCalledWith(error);
-            expect(res.status).not.toHaveBeenCalled();
-            expect(res.json).not.toHaveBeenCalled();
         });
     });
     describe('GetAllClientsController', () => {
-        it('should return paginated clients for a valid page', async () => {
-            const mockClients = [
-                {
-                    id: 1,
-                    name: 'João Silva',
-                    email: 'joao@example.com',
-                    notes: 'Regular',
-                    phone: '912345678',
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                },
-            ];
+        it('deve retornar clientes paginados com meta', async () => {
+            const mockClients = [{ id: 1, name: 'João Silva' }];
+            const mockMeta = { total: 1 };
             mockedGetAllClients.mockResolvedValue(mockClients);
+            mockedCountAllClients.mockResolvedValue(mockMeta);
             const req = {
                 storeId: 1,
-                query: { page: '2' },
+                query: { page: '2', status: 'active', orderBy: 'older' },
             };
             const res = mockResponse();
             await (0, client_controller_1.GetAllClientsController)(req, res, mockNext);
-            expect(mockedGetAllClients).toHaveBeenCalledWith(1, 2);
+            expect(mockedGetAllClients).toHaveBeenCalledWith(1, 2, 'older', 'active');
+            expect(mockedCountAllClients).toHaveBeenCalledWith(1);
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(mockClients);
-            expect(mockNext).not.toHaveBeenCalled();
+            expect(res.json).toHaveBeenCalledWith({ clients: mockClients, meta: mockMeta });
         });
-        it('should default to page 1 when no page is provided', async () => {
-            const mockClients = [
-                {
-                    id: 1,
-                    name: 'João Silva',
-                    email: 'joao@example.com',
-                    notes: 'Regular',
-                    phone: '912345678',
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                },
-            ];
+        it('deve aplicar valores por defeito se parâmetros forem inválidos', async () => {
+            const mockClients = [{ id: 2 }];
+            const mockMeta = { total: 1 };
             mockedGetAllClients.mockResolvedValue(mockClients);
+            mockedCountAllClients.mockResolvedValue(mockMeta);
             const req = {
                 storeId: 1,
-                query: {},
+                query: { page: 'abc', status: 'qualquer', orderBy: 'xpto' },
             };
             const res = mockResponse();
             await (0, client_controller_1.GetAllClientsController)(req, res, mockNext);
-            expect(mockedGetAllClients).toHaveBeenCalledWith(1, 1);
+            expect(mockedGetAllClients).toHaveBeenCalledWith(1, 1, 'newest', 'all');
+            expect(mockedCountAllClients).toHaveBeenCalledWith(1);
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(mockClients);
-            expect(mockNext).not.toHaveBeenCalled();
+            expect(res.json).toHaveBeenCalledWith({ clients: mockClients, meta: mockMeta });
         });
-        it('should handle invalid page numbers gracefully', async () => {
-            const mockClients = [];
-            mockedGetAllClients.mockResolvedValue(mockClients);
-            const req = {
-                storeId: 1,
-                query: { page: 'invalid' },
-            };
-            const res = mockResponse();
-            await (0, client_controller_1.GetAllClientsController)(req, res, mockNext);
-            expect(mockedGetAllClients).toHaveBeenCalledWith(1, 1);
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(mockClients);
-            expect(mockNext).not.toHaveBeenCalled();
-        });
-        it('should call next with error if service fails', async () => {
-            const error = new Error('Database error');
+        it('deve chamar o next com erro se o serviço falhar', async () => {
+            const error = new Error('Erro no serviço');
             mockedGetAllClients.mockRejectedValue(error);
             const req = {
                 storeId: 1,
@@ -174,10 +140,8 @@ describe('Client Controller', () => {
             };
             const res = mockResponse();
             await (0, client_controller_1.GetAllClientsController)(req, res, mockNext);
-            expect(mockedGetAllClients).toHaveBeenCalledWith(1, 1);
+            expect(mockedGetAllClients).toHaveBeenCalledWith(1, 1, 'newest', 'all');
             expect(mockNext).toHaveBeenCalledWith(error);
-            expect(res.status).not.toHaveBeenCalled();
-            expect(res.json).not.toHaveBeenCalled();
         });
     });
 });

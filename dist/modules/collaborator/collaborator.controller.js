@@ -6,6 +6,7 @@ exports.CreateOrUpdateServiceCollabPropsController = CreateOrUpdateServiceCollab
 exports.GetCollabDetailsController = GetCollabDetailsController;
 exports.CreateCollaboratorInviteController = CreateCollaboratorInviteController;
 exports.GetInvitesCollabsController = GetInvitesCollabsController;
+exports.GetAllCollabsFromServiceController = GetAllCollabsFromServiceController;
 const collaborator_service_1 = require("./collaborator.service");
 const custom_error_1 = require("../../commons/errors/custom.error");
 const format_1 = require("../../utils/format");
@@ -127,6 +128,16 @@ async function GetInvitesCollabsController(req, res, next) {
         console.log("Bateu aqui");
         const invites = await (0, collaborator_service_1.GetAllInvitesCollabs)(req.storeId);
         return res.status(200).json(invites);
+    }
+    catch (error) {
+        next(error);
+    }
+}
+async function GetAllCollabsFromServiceController(req, res, next) {
+    try {
+        const { id } = req.params;
+        const collabs = await (0, collaborator_service_1.GetAllCollabsFromService)(req.storeId, Number(id));
+        return res.status(200).json(collabs);
     }
     catch (error) {
         next(error);

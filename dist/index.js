@@ -14,6 +14,7 @@ const store_middleware_1 = require("./middleware/store.middleware");
 const store_external_router_1 = __importDefault(require("./routes/store-external.router"));
 const nunjucks_1 = __importDefault(require("nunjucks"));
 const path_1 = __importDefault(require("path"));
+const prisma_1 = __importDefault(require("./libs/prisma"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
 app.use(express_1.default.json());
@@ -31,6 +32,16 @@ function ConfigureNjkLocalDevelopment() {
     app.set('view engine', 'njk');
 }
 ConfigureNjkLocalDevelopment();
+app.get('/teste', async (req, res) => {
+    try {
+        const count = await prisma_1.default.client.count();
+        res.json({ totalClientes: count });
+    }
+    catch (error) {
+        console.error('Erro ao contar clientes:', error);
+        res.status(500).json({ erro: 'Erro ao contar clientes' });
+    }
+});
 app.use('/api', authRoutes_1.default);
 app.use('/api', store_external_router_1.default);
 app.use('/api', auth_middleware_1.AuthMiddleware, userRoutes_1.default);

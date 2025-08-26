@@ -17,6 +17,8 @@ async function getStatisticStore(storeId, range) {
             lte: range.end,
         };
     }
+    console.log(range.start);
+    console.log(range.end);
     const appointments = await prisma_1.default.appointment.findMany({
         where: whereCondition,
         select: {
@@ -24,13 +26,7 @@ async function getStatisticStore(storeId, range) {
         },
     });
     const newClientsCount = await prisma_1.default.client.count({
-        where: {
-            shopId: storeId,
-            createdAt: {
-                gte: range === null || range === void 0 ? void 0 : range.start,
-                lte: range === null || range === void 0 ? void 0 : range.end,
-            },
-        },
+        where: whereCondition,
     });
     const totalAppointments = appointments.length;
     const totalRevenue = appointments.reduce((sum, appt) => sum + (appt.price || 0), 0);

@@ -11,6 +11,7 @@ exports.GetServiceCollabProps = GetServiceCollabProps;
 exports.CreateOrUpdateServiceCollabProps = CreateOrUpdateServiceCollabProps;
 exports.GetCollaboratorDetails = GetCollaboratorDetails;
 exports.CreateCollaborator = CreateCollaborator;
+exports.GetAllCollabsFromService = GetAllCollabsFromService;
 const prisma_1 = __importDefault(require("../../libs/prisma"));
 async function getCollabId(storeId, userId) {
     return await prisma_1.default.collaborator.findUnique({
@@ -172,6 +173,33 @@ async function CreateCollaborator(storeId, userId, role) {
             shopId: storeId,
             userId,
             role,
+        }
+    });
+}
+async function GetAllCollabsFromService(storeId, serviceId) {
+    return await prisma_1.default.collaboratorService.findMany({
+        where: {
+            serviceId,
+            isActive: true,
+            Collaborator: {
+                shopId: storeId,
+            }
+        },
+        select: {
+            id: true,
+            Collaborator: {
+                select: {
+                    User: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        }
+                    }
+                }
+            },
+            collaboratorId: true,
+            duration: true,
         }
     });
 }
