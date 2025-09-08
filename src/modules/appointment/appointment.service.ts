@@ -189,3 +189,15 @@ export async function updateAppointment(appoinmentId: number, storeId: number, d
     },
   })
 }
+
+export async function updateAppointmentStatusByUUID(storeId: number, uuid: string, status: AppointmentStatus) {
+  return await prisma.appointment.update({
+    where: {
+      uuid,
+      shopId: storeId,
+    },
+    data: {
+      status,
+    }
+  })
+}

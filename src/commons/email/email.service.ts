@@ -10,6 +10,7 @@ type sendConfirmAppointmentProps = {
   cancelLink: string,
 }
 export function sendConfirmAppointment(data: sendConfirmAppointmentProps) {
+  console.log("Novo UUID", data.cancelLink);
   return sendEmail({
     to: data.email,
     subject: `Marcação concluída - ${data.storeName}`,
@@ -20,15 +21,22 @@ export function sendConfirmAppointment(data: sendConfirmAppointmentProps) {
   });
 }
 
+
+type sendRecoveryPasswordProps = {
+  userName: string,
+  email: string,
+  verificationLink: string
+}
+
 // emails/sendRecoveryPassword.ts
-export function sendRecoveryPassword(email: string, userName: string, link: string) {
+export function sendRecoveryPassword(data: sendRecoveryPasswordProps) {
+
   return sendEmail({
-    to: email,
+    to: data.email,
     subject: "Recuperação de palavra-passe - PloudStore",
-    template: "recoverPassword",
+    template: "resetPassword",
     context: {
-      userName,
-      verificationLink: link,
+      data
     },
   });
 }

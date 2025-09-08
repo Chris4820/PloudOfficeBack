@@ -7,6 +7,7 @@ import { BadRequestException, UnauthorizedException } from "../../commons/errors
 import { generateStoreJWT } from "../../commons/jwt/store.jwt";
 import type { UpdateSettingsFormData } from "./schema/update-shop.schema";
 import type { UpdateScheduleStoreFormData } from "./schema/update-schedule.schema";
+import { acceptInviteCollab } from "../collaborator/collaborator.service";
 
 
 
@@ -110,5 +111,18 @@ export async function UpdateScheduleStoreController(req: Request, res: Response,
 
   } catch (error) {
     next(error)
+  }
+}
+
+export async function AcceptInviteController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+
+    await acceptInviteCollab(req.userId, Number(id));
+
+
+    return res.status(200).json({ message: 'Convite aceito com sucesso!' });
+  } catch (error) {
+    next(error);
   }
 }

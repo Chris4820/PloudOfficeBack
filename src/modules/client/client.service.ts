@@ -1,5 +1,6 @@
 import { subMonths } from "date-fns";
 import prisma from "../../libs/prisma";
+import { LIMIT_PER_PAGE } from "../../types/constant";
 
 
 
@@ -54,16 +55,8 @@ export async function GetAllClients(shopId: number, page: number, orderBy: strin
     orderBy: {
       lastAppointment: orderBy === 'newest' ? 'desc' : 'asc',
     },
-    skip: (page - 1) * 10,
-    take: 10,
-  })
-}
-
-export async function CountAllClients(shopId: number) {
-  return await prisma.client.count({
-    where: {
-      shopId,
-    },
+    skip: (page - 1) * LIMIT_PER_PAGE,
+    take: LIMIT_PER_PAGE + 1,
   })
 }
 

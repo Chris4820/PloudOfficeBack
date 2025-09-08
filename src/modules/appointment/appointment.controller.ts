@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { UpdateLastVisit } from "../client/client.service";
-import { CreateAppointment, createBooking, deleteAppointment, getAppointmentById, getAppointmentClient, updateAppointment, updateAppointmentStatus } from "./appointment.service";
+import { CreateAppointment, deleteAppointment, getAppointmentById, getAppointmentClient, updateAppointment, updateAppointmentStatus, updateAppointmentStatusByUUID } from "./appointment.service";
 import { sendConfirmAppointment } from "../../commons/email/email.service";
 import { getStoreByDomain } from "../shop/shop.service";
 import prisma from "../../libs/prisma";
@@ -41,7 +41,7 @@ export async function CreateNewAppointmentExternalController(req: Request, res: 
 
     const rawHeader = req.get('X-Site-Origin');
     const storeDomain = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
-    const store = await getStoreByDomain(storeDomain === 'localhost' ? 'barber.ploudstore.com' : storeDomain);
+    const store = await getStoreByDomain(storeDomain === 'localhost:3001' ? 'barber.ploudstore.com' : storeDomain);
     if (!store) {
       return res.status(400).json({ message: 'Essa loja não existe' })
     };
@@ -115,7 +115,7 @@ export async function CreateNewAppointmentExternalController(req: Request, res: 
         serviceName: service.Service.name || "Lavar os dentes",
         startDate: formattedDate,
         storeName: store.name || "Loja nome",
-        cancelLink: appointment.uuid || "",
+        cancelLink: `${storeDomain}/cancel?id=${appointment.uuid}`,
       }),
       UpdateLastVisit(appointment.Client.id, store.id, data.startDate),
     ]);
@@ -210,6 +210,30 @@ export async function UpdateAppointmentController(req: Request, res: Response, n
     await updateAppointment(Number(id), req.storeId, data, endDate);
     return res.status(200).json({ message: 'OK' })
   } catch (error) {
+    next(error);
+  }
+}
+
+
+export async function CancelAppointmentExternalController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const rawHeader = req.get('X-Site-Origin');
+    const storeDomain = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
+    const store = await getStoreByDomain(storeDomain === 'localhost' ? 'barber.ploudstore.com' : storeDomain);
+    if (!store) {
+      return res.status(400).json({ message: 'Essa loja não existe' })
+    };
+    const { id } = req.query;
+    if (!id || id === "" || typeof id !== "string") {
+      throw new BadRequestException("ID é obrigatório");
+    }
+    console.log("Sim");
+    console.log(store.id, id);
+    await updateAppointmentStatusByUUID(store.id, id, AppointmentStatus.CANCELED);
+    return res.status(200).json({ message: 'Cancelado com sucesso' });
+
+  } catch (error) {
+    console.log("Não")
     next(error);
   }
 }

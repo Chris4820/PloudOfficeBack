@@ -17,3 +17,14 @@ export async function getUserByEmail(email: string) {
     }
   })
 }
+
+export async function updatePassword(userId: number, newPassword: string) {
+  return await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      password: newPassword,
+    }
+  })
+}

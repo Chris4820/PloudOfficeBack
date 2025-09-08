@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "./ERD.svg"
+}
+
 model User {
   id           Int            @id @default(autoincrement())
   name         String
@@ -161,7 +166,7 @@ model Appointment {
   collaboratorId     Int
   end                DateTime
   start              DateTime
-  uuid               String?           @default(cuid())
+  uuid               String?           @unique @default(cuid())
   Client             Client            @relation(fields: [clientId], references: [id])
   User               User              @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
   Service            Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)

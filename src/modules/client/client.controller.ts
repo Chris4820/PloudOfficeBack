@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
-import { CountAllClients, findClientByEmail, GetAllClients, getClientAppoinmentsStatusCount, getClientById } from "./client.service";
+import { findClientByEmail, GetAllClients, getClientAppoinmentsStatusCount, getClientById } from "./client.service";
 import { NotFoundException } from "../../commons/errors/custom.error";
+import { LIMIT_PER_PAGE } from "../../types/constant";
 
 
 
@@ -46,11 +47,15 @@ export async function GetAllClientsController(req: Request, res: Response, next:
 
     console.log(orderBy);
 
-    const [clients, count] = await Promise.all([
-      GetAllClients(req.storeId, pageNumber, orderBy, status),
-      CountAllClients(req.storeId)
-    ]);
-    return res.status(200).json({ clients, meta: count });
+    const clientsData = await GetAllClients(req.storeId, pageNumber, orderBy, status);
+
+
+    return res.status(200).json({
+      clients: clientsData,
+      meta: {
+        hasNextPage: clientsData.length > LIMIT_PER_PAGE,
+      }
+    });
   } catch (error) {
     next(error);
   }

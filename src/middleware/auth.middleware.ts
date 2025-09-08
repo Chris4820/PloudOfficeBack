@@ -7,11 +7,10 @@ import { UnauthorizedException } from '../commons/errors/custom.error';
 // Middleware de autenticação
 export async function AuthMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
-    console.log("authhh")
     const token = extractTokenFromHeader(req);
-
+    console.log(token);
     if (!token) {
-      throw new UnauthorizedException("Sessão nao existe")
+      throw new UnauthorizedException("Sessão de auth nao existe")
     }
     const secret = process.env.JWT_SECRET_TOKEN_AUTH!;
     const decoded = jwt.verify(token, secret) as JwtPayload;

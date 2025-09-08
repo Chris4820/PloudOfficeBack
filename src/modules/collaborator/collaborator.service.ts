@@ -210,3 +210,18 @@ export async function GetAllCollabsFromService(storeId: number, serviceId: numbe
     }
   })
 }
+
+
+export async function acceptInviteCollab(userId: number, shopId: number) {
+  return await prisma.collaborator.update({
+    where: {
+      shopId_userId: {
+        shopId,
+        userId,
+      }
+    },
+    data: {
+      status: "ACCEPTED"
+    }
+  })
+}
