@@ -5,12 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.findClientByEmail = findClientByEmail;
 exports.GetAllClients = GetAllClients;
-exports.CountAllClients = CountAllClients;
 exports.UpdateLastVisit = UpdateLastVisit;
 exports.getClientById = getClientById;
 exports.getClientAppoinmentsStatusCount = getClientAppoinmentsStatusCount;
 const date_fns_1 = require("date-fns");
 const prisma_1 = __importDefault(require("../../libs/prisma"));
+const constant_1 = require("../../types/constant");
 async function findClientByEmail(storeId, name) {
     return await prisma_1.default.client.findMany({
         where: {
@@ -60,15 +60,8 @@ async function GetAllClients(shopId, page, orderBy, status) {
         orderBy: {
             lastAppointment: orderBy === 'newest' ? 'desc' : 'asc',
         },
-        skip: (page - 1) * 10,
-        take: 10,
-    });
-}
-async function CountAllClients(shopId) {
-    return await prisma_1.default.client.count({
-        where: {
-            shopId,
-        },
+        skip: (page - 1) * constant_1.LIMIT_PER_PAGE,
+        take: constant_1.LIMIT_PER_PAGE + 1,
     });
 }
 async function UpdateLastVisit(clientId, shopId, newDate) {

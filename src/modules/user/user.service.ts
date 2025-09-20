@@ -5,7 +5,7 @@ import type { CreateUserProps } from "./types/user.type";
 
 
 export async function getUserById(userId: number) {
-  return await prisma.user.findUnique({
+  return await prisma.collaborator.findUnique({
     where: {
       id: userId,
     },
@@ -22,7 +22,7 @@ export async function getUserById(userId: number) {
 
 
 export async function createUser(data: CreateUserProps) {
-  return await prisma.user.create({
+  return await prisma.collaborator.create({
     data: {
       name: data.name,
       email: data.email,
@@ -33,7 +33,7 @@ export async function createUser(data: CreateUserProps) {
 }
 
 export async function isEmailExist(email: string) {
-  return await prisma.user.findFirst({
+  return await prisma.collaborator.findFirst({
     where: {
       email: email,
     },
@@ -45,7 +45,7 @@ export async function isEmailExist(email: string) {
 
 
 export async function getUserExistByEmail(email: string) {
-  return await prisma.user.findUnique({
+  return await prisma.collaborator.findUnique({
     where: {
       email: email,
     },
@@ -59,7 +59,7 @@ export async function getUserExistByEmail(email: string) {
 
 
 export async function updateUserSidebar(userId: number, sidebarOpen: boolean) {
-  return await prisma.user.update({
+  return await prisma.collaborator.update({
     where: {
       id: userId,
     },

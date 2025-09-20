@@ -6,7 +6,7 @@ import type { EditServiceCollabFormData } from "../schema/collaborator.schema";
 
 
 export async function getCollabId(storeId: number, userId: number) {
-  return await prisma.collaborator.findUnique({
+  return await prisma.collaboratorShop.findUnique({
     where: {
       shopId_userId: {
         shopId: storeId,
@@ -22,7 +22,7 @@ export async function getCollabId(storeId: number, userId: number) {
 
 
 export async function GetAllColaborators(storeId: number, userId: number, isAdmin: boolean) {
-  return await prisma.collaborator.findMany({
+  return await prisma.collaboratorShop.findMany({
     where: {
       shopId: storeId,
       ...(isAdmin ? {} : { userId }), // se não for admin, só o próprio
@@ -32,7 +32,7 @@ export async function GetAllColaborators(storeId: number, userId: number, isAdmi
       id: true,
       role: true,
       createdAt: true,
-      User: {
+      Collaborator: {
         select: {
           id: true,
           name: true,
@@ -46,7 +46,7 @@ export async function GetAllColaborators(storeId: number, userId: number, isAdmi
 }
 
 export async function GetAllInvitesCollabs(storeId: number) {
-  return await prisma.collaborator.findMany({
+  return await prisma.collaboratorShop.findMany({
     where: {
       shopId: storeId,
       status: "PENDING",
@@ -55,7 +55,7 @@ export async function GetAllInvitesCollabs(storeId: number) {
       id: true,
       role: true,
       createdAt: true,
-      User: {
+      Collaborator: {
         select: {
           id: true,
           email: true,
@@ -66,7 +66,7 @@ export async function GetAllInvitesCollabs(storeId: number) {
 }
 
 export async function CheckRoleCollaborator(userId: number, shopId: number) {
-  return await prisma.collaborator.findUnique({
+  return await prisma.collaboratorShop.findUnique({
     where: {
       shopId_userId: {
         shopId,
@@ -125,14 +125,14 @@ export async function CreateOrUpdateServiceCollabProps(coolabId: number, service
 
 
 export async function GetCollaboratorDetails(collabId: number, storeId: number) {
-  return await prisma.collaborator.findUnique({
+  return await prisma.collaboratorShop.findUnique({
     where: {
       id: collabId,
       shopId: storeId,
     },
     select: {
       role: true,
-      User: {
+      Collaborator: {
         select: {
           name: true,
           email: true,
@@ -173,7 +173,7 @@ export async function GetCollaboratorDetails(collabId: number, storeId: number) 
 
 export async function CreateCollaborator(storeId: number, userId: number, role: CollaboratorRole) {
 
-  return await prisma.collaborator.create({
+  return await prisma.collaboratorShop.create({
     data: {
       shopId: storeId,
       userId,
@@ -187,15 +187,15 @@ export async function GetAllCollabsFromService(storeId: number, serviceId: numbe
     where: {
       serviceId,
       isActive: true,
-      Collaborator: {
+      CollaboratorShop: {
         shopId: storeId,
       }
     },
     select: {
       id: true,
-      Collaborator: {
+      CollaboratorShop: {
         select: {
-          User: {
+          Collaborator: {
             select: {
               id: true,
               name: true,
@@ -213,7 +213,7 @@ export async function GetAllCollabsFromService(storeId: number, serviceId: numbe
 
 
 export async function acceptInviteCollab(userId: number, shopId: number) {
-  return await prisma.collaborator.update({
+  return await prisma.collaboratorShop.update({
     where: {
       shopId_userId: {
         shopId,

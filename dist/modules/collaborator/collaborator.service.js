@@ -12,9 +12,10 @@ exports.CreateOrUpdateServiceCollabProps = CreateOrUpdateServiceCollabProps;
 exports.GetCollaboratorDetails = GetCollaboratorDetails;
 exports.CreateCollaborator = CreateCollaborator;
 exports.GetAllCollabsFromService = GetAllCollabsFromService;
+exports.acceptInviteCollab = acceptInviteCollab;
 const prisma_1 = __importDefault(require("../../libs/prisma"));
 async function getCollabId(storeId, userId) {
-    return await prisma_1.default.collaborator.findUnique({
+    return await prisma_1.default.collaboratorShop.findUnique({
         where: {
             shopId_userId: {
                 shopId: storeId,
@@ -28,7 +29,7 @@ async function getCollabId(storeId, userId) {
     });
 }
 async function GetAllColaborators(storeId, userId, isAdmin) {
-    return await prisma_1.default.collaborator.findMany({
+    return await prisma_1.default.collaboratorShop.findMany({
         where: {
             shopId: storeId,
             ...(isAdmin ? {} : { userId }), // se não for admin, só o próprio
@@ -38,7 +39,7 @@ async function GetAllColaborators(storeId, userId, isAdmin) {
             id: true,
             role: true,
             createdAt: true,
-            User: {
+            Collaborator: {
                 select: {
                     id: true,
                     name: true,
@@ -51,7 +52,7 @@ async function GetAllColaborators(storeId, userId, isAdmin) {
     });
 }
 async function GetAllInvitesCollabs(storeId) {
-    return await prisma_1.default.collaborator.findMany({
+    return await prisma_1.default.collaboratorShop.findMany({
         where: {
             shopId: storeId,
             status: "PENDING",
@@ -60,7 +61,7 @@ async function GetAllInvitesCollabs(storeId) {
             id: true,
             role: true,
             createdAt: true,
-            User: {
+            Collaborator: {
                 select: {
                     id: true,
                     email: true,
@@ -70,7 +71,7 @@ async function GetAllInvitesCollabs(storeId) {
     });
 }
 async function CheckRoleCollaborator(userId, shopId) {
-    return await prisma_1.default.collaborator.findUnique({
+    return await prisma_1.default.collaboratorShop.findUnique({
         where: {
             shopId_userId: {
                 shopId,
@@ -124,14 +125,14 @@ async function CreateOrUpdateServiceCollabProps(coolabId, serviceId, data) {
     });
 }
 async function GetCollaboratorDetails(collabId, storeId) {
-    return await prisma_1.default.collaborator.findUnique({
+    return await prisma_1.default.collaboratorShop.findUnique({
         where: {
             id: collabId,
             shopId: storeId,
         },
         select: {
             role: true,
-            User: {
+            Collaborator: {
                 select: {
                     name: true,
                     email: true,
@@ -168,7 +169,7 @@ async function GetCollaboratorDetails(collabId, storeId) {
     });
 }
 async function CreateCollaborator(storeId, userId, role) {
-    return await prisma_1.default.collaborator.create({
+    return await prisma_1.default.collaboratorShop.create({
         data: {
             shopId: storeId,
             userId,
@@ -181,15 +182,15 @@ async function GetAllCollabsFromService(storeId, serviceId) {
         where: {
             serviceId,
             isActive: true,
-            Collaborator: {
+            CollaboratorShop: {
                 shopId: storeId,
             }
         },
         select: {
             id: true,
-            Collaborator: {
+            CollaboratorShop: {
                 select: {
-                    User: {
+                    Collaborator: {
                         select: {
                             id: true,
                             name: true,
@@ -200,6 +201,19 @@ async function GetAllCollabsFromService(storeId, serviceId) {
             },
             collaboratorId: true,
             duration: true,
+        }
+    });
+}
+async function acceptInviteCollab(userId, shopId) {
+    return await prisma_1.default.collaboratorShop.update({
+        where: {
+            shopId_userId: {
+                shopId,
+                userId,
+            }
+        },
+        data: {
+            status: "ACCEPTED"
         }
     });
 }

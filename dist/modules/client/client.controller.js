@@ -5,6 +5,7 @@ exports.GetAllClientsController = GetAllClientsController;
 exports.GetClientDetailsController = GetClientDetailsController;
 const client_service_1 = require("./client.service");
 const custom_error_1 = require("../../commons/errors/custom.error");
+const constant_1 = require("../../types/constant");
 async function GetClientController(req, res, next) {
     try {
         const { name } = req.query;
@@ -43,11 +44,13 @@ async function GetAllClientsController(req, res, next) {
             orderBy = 'newest';
         }
         console.log(orderBy);
-        const [clients, count] = await Promise.all([
-            (0, client_service_1.GetAllClients)(req.storeId, pageNumber, orderBy, status),
-            (0, client_service_1.CountAllClients)(req.storeId)
-        ]);
-        return res.status(200).json({ clients, meta: count });
+        const clientsData = await (0, client_service_1.GetAllClients)(req.storeId, pageNumber, orderBy, status);
+        return res.status(200).json({
+            clients: clientsData,
+            meta: {
+                hasNextPage: clientsData.length > constant_1.LIMIT_PER_PAGE,
+            }
+        });
     }
     catch (error) {
         next(error);

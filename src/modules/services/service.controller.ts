@@ -137,6 +137,7 @@ export async function GetServicesByCollaboratorController(req: Request, res: Res
   try {
     const { collabId } = req.params;
     const services = await GetServicesByCollaborator(req.storeId, Number(collabId));
+    console.log(services);
     return res.status(200).json(services.CollaboratorService);
   } catch (error) {
     next(error)

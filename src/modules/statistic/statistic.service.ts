@@ -116,7 +116,7 @@ export async function getTopEmployees(shopId: number, range?: GetStatStoreProps)
 
   const collaboratorIds = result.map(r => r.collaboratorId)
 
-  const collaborators = await prisma.user.findMany({
+  const collaborators = await prisma.collaborator.findMany({
     where: { id: { in: collaboratorIds } },
     select: {
       id: true,

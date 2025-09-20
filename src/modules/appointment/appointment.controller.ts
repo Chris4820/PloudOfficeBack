@@ -46,7 +46,7 @@ export async function CreateNewAppointmentExternalController(req: Request, res: 
       return res.status(400).json({ message: 'Essa loja não existe' })
     };
 
-    const collaborator = await prisma.collaborator.findUnique({
+    const collaborator = await prisma.collaboratorShop.findUnique({
       where: {
         shopId_userId: {
           shopId: store.id,

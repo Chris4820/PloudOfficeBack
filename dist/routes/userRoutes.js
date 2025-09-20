@@ -12,5 +12,6 @@ userRouter.get('/shop', shop_controller_1.GetAllShopsController);
 userRouter.post('/shop', (0, validate_middleware_1.validateBody)(shop_schema_1.CreateShopSchema), shop_controller_1.CreateShopController);
 userRouter.patch('/shop/open/:storeId', shop_controller_1.OpenStoreController);
 userRouter.patch('/user/sidebar', user_controller_1.UpdateSideBarController);
+userRouter.patch('/shop/invite/:id', shop_controller_1.AcceptInviteController);
 exports.default = userRouter;
 //# sourceMappingURL=userRoutes.js.map

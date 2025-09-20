@@ -19,8 +19,8 @@ export async function GetAllColaboratorsController(req: Request, res: Response, 
     const collaborators = await GetAllColaborators(req.storeId, req.userId, isAdmin);
     // Coloca o usuário atual em primeiro
     const sortedCollab = collaborators.sort((a, b) => {
-      if (a.User.id === req.userId) return -1;
-      if (a.User.id === req.userId) return 1;
+      if (a.Collaborator.id === req.userId) return -1;
+      if (b.Collaborator.id === req.userId) return 1;
       return 0;
     });
 

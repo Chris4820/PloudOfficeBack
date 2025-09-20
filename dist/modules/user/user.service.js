@@ -10,7 +10,7 @@ exports.getUserExistByEmail = getUserExistByEmail;
 exports.updateUserSidebar = updateUserSidebar;
 const prisma_1 = __importDefault(require("../../libs/prisma"));
 async function getUserById(userId) {
-    return await prisma_1.default.user.findUnique({
+    return await prisma_1.default.collaborator.findUnique({
         where: {
             id: userId,
         },
@@ -25,7 +25,7 @@ async function getUserById(userId) {
     });
 }
 async function createUser(data) {
-    return await prisma_1.default.user.create({
+    return await prisma_1.default.collaborator.create({
         data: {
             name: data.name,
             email: data.email,
@@ -35,7 +35,7 @@ async function createUser(data) {
     });
 }
 async function isEmailExist(email) {
-    return await prisma_1.default.user.findFirst({
+    return await prisma_1.default.collaborator.findFirst({
         where: {
             email: email,
         },
@@ -45,7 +45,7 @@ async function isEmailExist(email) {
     });
 }
 async function getUserExistByEmail(email) {
-    return await prisma_1.default.user.findUnique({
+    return await prisma_1.default.collaborator.findUnique({
         where: {
             email: email,
         },
@@ -57,7 +57,7 @@ async function getUserExistByEmail(email) {
     });
 }
 async function updateUserSidebar(userId, sidebarOpen) {
-    return await prisma_1.default.user.update({
+    return await prisma_1.default.collaborator.update({
         where: {
             id: userId,
         },

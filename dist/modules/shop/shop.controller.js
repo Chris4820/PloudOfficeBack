@@ -6,10 +6,12 @@ exports.CreateShopController = CreateShopController;
 exports.OpenStoreController = OpenStoreController;
 exports.UpdateShopController = UpdateShopController;
 exports.UpdateScheduleStoreController = UpdateScheduleStoreController;
+exports.AcceptInviteController = AcceptInviteController;
 const shop_service_1 = require("./shop.service");
 const utils_1 = require("../../utils/utils");
 const custom_error_1 = require("../../commons/errors/custom.error");
 const store_jwt_1 = require("../../commons/jwt/store.jwt");
+const collaborator_service_1 = require("../collaborator/collaborator.service");
 async function GetAllShopsController(req, res, next) {
     try {
         const store = await (0, shop_service_1.getAllUserShops)(req.userId);
@@ -99,6 +101,16 @@ async function UpdateScheduleStoreController(req, res, next) {
         const data = req.body;
         await (0, shop_service_1.updateScheduleStore)(req.storeId, data);
         return res.status(200).json({ message: 'Ok' });
+    }
+    catch (error) {
+        next(error);
+    }
+}
+async function AcceptInviteController(req, res, next) {
+    try {
+        const { id } = req.params;
+        await (0, collaborator_service_1.acceptInviteCollab)(req.userId, Number(id));
+        return res.status(200).json({ message: 'Convite aceito com sucesso!' });
     }
     catch (error) {
         next(error);

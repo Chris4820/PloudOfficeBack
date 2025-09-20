@@ -131,18 +131,14 @@ export async function CreateService(storeId: number, userId: number, data: Creat
 
 //Retorna o serviço e props de um collab especifico
 export async function GetServicesByCollaborator(storeId: number, collabUserId: number) {
-  return await prisma.collaborator.findFirst({
+  return await prisma.collaboratorShop.findFirst({
     where: {
       shopId: storeId,
       userId: collabUserId,
-      isActive: true,
     },
     select: {
       id: true,
       CollaboratorService: {
-        where: {
-          isActive: true,
-        },
         select: {
           id: true,
           price: true,

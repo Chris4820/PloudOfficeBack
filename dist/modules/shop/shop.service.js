@@ -15,7 +15,7 @@ const client_1 = require("@prisma/client");
 const prisma_1 = __importDefault(require("../../libs/prisma"));
 const custom_error_1 = require("../../commons/errors/custom.error");
 async function getAllUserShops(userId) {
-    return await prisma_1.default.collaborator.findMany({
+    return await prisma_1.default.collaboratorShop.findMany({
         where: {
             userId: userId,
         },
@@ -45,7 +45,7 @@ async function getOwnerStore(userId, storeId) {
     });
 }
 async function getMemberStore(userId, storeId) {
-    return await prisma_1.default.collaborator.findUnique({
+    return await prisma_1.default.collaboratorShop.findUnique({
         where: {
             shopId_userId: {
                 userId,
@@ -104,7 +104,7 @@ async function createShop(userId, data) {
                 name: data.name,
                 shortName: data.shortName,
                 subdomain: data.subdomain,
-                Collaborator: {
+                CollaboratorShop: {
                     create: {
                         role: 'OWNER',
                         userId: userId,

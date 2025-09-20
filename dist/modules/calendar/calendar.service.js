@@ -11,7 +11,7 @@ async function GetCalendar(storeId, collabId, startDate, endDate) {
     return await prisma_1.default.appointment.findMany({
         where: {
             shopId: storeId,
-            User: {
+            Collaborator: {
                 id: collabId,
             },
             start: {

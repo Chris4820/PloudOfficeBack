@@ -7,31 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-  output   = "./ERD.svg"
-}
-
-model User {
-  id           Int            @id @default(autoincrement())
-  name         String
-  email        String         @unique
-  password     String
-  lastLogin    DateTime       @default(now())
-  phone        String?
-  theme        ThemeEnum      @default(LIGHT)
-  shortName    String         @default("")
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now()) @updatedAt
-  imageUrl     String?
-  sidebarOpen  Boolean        @default(true)
-  Appointment  Appointment[]
-  Collaborator Collaborator[]
-  Shop         Shop[]
+model Collaborator {
+  id                  Int                   @id @default(autoincrement())
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now()) @updatedAt
+  email               String                @unique
+  imageUrl            String?
+  lastLogin           DateTime              @default(now())
+  name                String
+  password            String
+  phone               String?
+  shortName           String                @default("")
+  sidebarOpen         Boolean               @default(true)
+  theme               ThemeEnum             @default(LIGHT)
+  Appointment         Appointment[]
+  CollaboratorService CollaboratorService[]
+  CollaboratorShop    CollaboratorShop[]
+  Schedule            Schedule[]
+  Shop                Shop[]
 }
 
 model Shop {
-  id               Int            @id @default(autoincrement())
+  id               Int                @id @default(autoincrement())
   ownerId          Int
   name             String
   description      String?
@@ -42,21 +39,21 @@ model Shop {
   templateId       String?
   primaryColor     String?
   secondaryColor   String?
-  subdomain        String         @unique
-  createdAt        DateTime       @default(now())
-  lastAccess       DateTime       @default(now())
-  updatedAt        DateTime       @default(now()) @updatedAt
-  emailReminders   Boolean        @default(true)
-  isMaintenance    Boolean        @default(false)
+  subdomain        String             @unique
+  createdAt        DateTime           @default(now())
+  lastAccess       DateTime           @default(now())
+  updatedAt        DateTime           @default(now()) @updatedAt
+  emailReminders   Boolean            @default(true)
+  isMaintenance    Boolean            @default(false)
   emailCompany     String?
   facebookCompany  String?
   instagramCompany String?
   Appointment      Appointment[]
   Clients          Client[]
-  Collaborator     Collaborator[]
+  CollaboratorShop CollaboratorShop[]
   Schedule         Schedule[]
   Service          Service[]
-  User             User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  Collaborator     Collaborator       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ShopSchedule     ShopSchedule[]
 
   @@index([ownerId, subdomain])
@@ -79,7 +76,7 @@ model ShopSchedule {
   @@index([shopId, dayOfWeek])
 }
 
-model Collaborator {
+model CollaboratorShop {
   id                  Int                   @id @default(autoincrement())
   shopId              Int
   userId              Int
@@ -88,9 +85,9 @@ model Collaborator {
   role                CollaboratorRole
   isActive            Boolean               @default(true)
   status              InviteStatus          @default(PENDING)
-  Shop                Shop                  @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  User                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   CollaboratorService CollaboratorService[]
+  Shop                Shop                  @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  Collaborator        Collaborator          @relation(fields: [userId], references: [id], onDelete: Cascade)
   Schedule            Schedule[]
 
   @@unique([shopId, userId])
@@ -117,15 +114,17 @@ model Service {
 }
 
 model CollaboratorService {
-  id             Int          @id @default(autoincrement())
-  serviceId      Int
-  price          Int
-  duration       Int
-  isActive       Boolean      @default(true)
-  notes          String?
-  collaboratorId Int
-  Collaborator   Collaborator @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
-  Service        Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  id                 Int               @id @default(autoincrement())
+  serviceId          Int
+  price              Int
+  duration           Int
+  isActive           Boolean           @default(true)
+  notes              String?
+  collaboratorId     Int
+  collaboratorShopId Int?
+  Collaborator       Collaborator      @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
+  CollaboratorShop   CollaboratorShop? @relation(fields: [collaboratorShopId], references: [id])
+  Service            Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([collaboratorId, serviceId])
   @@index([collaboratorId, serviceId])
@@ -138,9 +137,9 @@ model Client {
   email           String
   phone           String?
   notes           String?
-  lastAppointment DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @default(now()) @updatedAt
+  lastAppointment DateTime?
   Appointment     Appointment[]
   Shop            Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
@@ -168,7 +167,7 @@ model Appointment {
   start              DateTime
   uuid               String?           @unique @default(cuid())
   Client             Client            @relation(fields: [clientId], references: [id])
-  User               User              @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
+  Collaborator       Collaborator      @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
   Service            Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   Shop               Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
@@ -178,18 +177,20 @@ model Appointment {
 }
 
 model Schedule {
-  id           Int           @id @default(autoincrement())
-  shopId       Int
-  barberId     Int?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  dayOfWeek    DayOfWeek
-  startTime    DateTime
-  endTime      DateTime
-  breakStart   DateTime?
-  breakEnd     DateTime?
-  Collaborator Collaborator? @relation(fields: [barberId], references: [id])
-  Shop         Shop          @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  id                 Int               @id @default(autoincrement())
+  shopId             Int
+  barberId           Int?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  dayOfWeek          DayOfWeek
+  startTime          DateTime
+  endTime            DateTime
+  breakStart         DateTime?
+  breakEnd           DateTime?
+  collaboratorShopId Int?
+  Collaborator       Collaborator?     @relation(fields: [barberId], references: [id])
+  CollaboratorShop   CollaboratorShop? @relation(fields: [collaboratorShopId], references: [id])
+  Shop               Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
 
   @@index([shopId, barberId])
 }

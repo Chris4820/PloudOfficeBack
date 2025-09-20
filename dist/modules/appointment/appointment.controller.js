@@ -10,6 +10,7 @@ exports.GetAppointmentByIdController = GetAppointmentByIdController;
 exports.UpdateAppointmentStatusController = UpdateAppointmentStatusController;
 exports.DeleteAppointmentController = DeleteAppointmentController;
 exports.UpdateAppointmentController = UpdateAppointmentController;
+exports.CancelAppointmentExternalController = CancelAppointmentExternalController;
 const client_service_1 = require("../client/client.service");
 const appointment_service_1 = require("./appointment.service");
 const email_service_1 = require("../../commons/email/email.service");
@@ -26,12 +27,12 @@ async function CreateNewAppointmentExternalController(req, res, next) {
         console.log(data);
         const rawHeader = req.get('X-Site-Origin');
         const storeDomain = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
-        const store = await (0, shop_service_1.getStoreByDomain)(storeDomain === 'localhost' ? 'barber.ploudstore.com' : storeDomain);
+        const store = await (0, shop_service_1.getStoreByDomain)(storeDomain === 'localhost:3001' ? 'barber.ploudstore.com' : storeDomain);
         if (!store) {
             return res.status(400).json({ message: 'Essa loja não existe' });
         }
         ;
-        const collaborator = await prisma_1.default.collaborator.findUnique({
+        const collaborator = await prisma_1.default.collaboratorShop.findUnique({
             where: {
                 shopId_userId: {
                     shopId: store.id,
@@ -93,7 +94,7 @@ async function CreateNewAppointmentExternalController(req, res, next) {
                 serviceName: service.Service.name || "Lavar os dentes",
                 startDate: formattedDate,
                 storeName: store.name || "Loja nome",
-                cancelLink: appointment.uuid || "",
+                cancelLink: `${storeDomain}/cancel?id=${appointment.uuid}`,
             }),
             (0, client_service_1.UpdateLastVisit)(appointment.Client.id, store.id, data.startDate),
         ]);
@@ -178,6 +179,29 @@ async function UpdateAppointmentController(req, res, next) {
         return res.status(200).json({ message: 'OK' });
     }
     catch (error) {
+        next(error);
+    }
+}
+async function CancelAppointmentExternalController(req, res, next) {
+    try {
+        const rawHeader = req.get('X-Site-Origin');
+        const storeDomain = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
+        const store = await (0, shop_service_1.getStoreByDomain)(storeDomain === 'localhost' ? 'barber.ploudstore.com' : storeDomain);
+        if (!store) {
+            return res.status(400).json({ message: 'Essa loja não existe' });
+        }
+        ;
+        const { id } = req.query;
+        if (!id || id === "" || typeof id !== "string") {
+            throw new custom_error_1.BadRequestException("ID é obrigatório");
+        }
+        console.log("Sim");
+        console.log(store.id, id);
+        await (0, appointment_service_1.updateAppointmentStatusByUUID)(store.id, id, client_1.AppointmentStatus.CANCELED);
+        return res.status(200).json({ message: 'Cancelado com sucesso' });
+    }
+    catch (error) {
+        console.log("Não");
         next(error);
     }
 }

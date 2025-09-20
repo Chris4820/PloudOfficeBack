@@ -10,6 +10,7 @@ exports.getAppointmentById = getAppointmentById;
 exports.updateAppointmentStatus = updateAppointmentStatus;
 exports.deleteAppointment = deleteAppointment;
 exports.updateAppointment = updateAppointment;
+exports.updateAppointmentStatusByUUID = updateAppointmentStatusByUUID;
 const prisma_1 = __importDefault(require("../../libs/prisma"));
 async function createBooking(start, end, shopId, collabId, clientId, duration, serviceId, price) {
     return await prisma_1.default.appointment.create({
@@ -36,7 +37,7 @@ async function CreateAppointment(storeId, data, dataProps) {
                     id: storeId
                 }
             },
-            User: {
+            Collaborator: {
                 connect: {
                     id: data.collabId
                 }
@@ -96,7 +97,7 @@ async function getAppointmentClient(clientId, shopId) {
             duration: true,
             price: true,
             createdAt: true,
-            User: {
+            Collaborator: {
                 select: {
                     id: true,
                     name: true,
@@ -135,7 +136,7 @@ async function getAppointmentById(appointmentId, shopId) {
             duration: true,
             price: true,
             createdAt: true,
-            User: {
+            Collaborator: {
                 select: {
                     id: true,
                     name: true,
@@ -176,6 +177,17 @@ async function updateAppointment(appoinmentId, storeId, data, endDate) {
             end: endDate,
             duration: data.duration,
         },
+    });
+}
+async function updateAppointmentStatusByUUID(storeId, uuid, status) {
+    return await prisma_1.default.appointment.update({
+        where: {
+            uuid,
+            shopId: storeId,
+        },
+        data: {
+            status,
+        }
     });
 }
 //# sourceMappingURL=appointment.service.js.map

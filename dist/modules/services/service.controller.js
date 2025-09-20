@@ -115,6 +115,7 @@ async function GetServicesByCollaboratorController(req, res, next) {
     try {
         const { collabId } = req.params;
         const services = await (0, service_service_1.GetServicesByCollaborator)(req.storeId, Number(collabId));
+        console.log(services);
         return res.status(200).json(services.CollaboratorService);
     }
     catch (error) {

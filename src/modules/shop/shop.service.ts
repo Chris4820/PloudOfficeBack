@@ -8,7 +8,7 @@ import { ConflictException } from "../../commons/errors/custom.error";
 
 
 export async function getAllUserShops(userId: number) {
-  return await prisma.collaborator.findMany({
+  return await prisma.collaboratorShop.findMany({
     where: {
       userId: userId,
     },
@@ -40,7 +40,7 @@ export async function getOwnerStore(userId: number, storeId: number) {
 }
 
 export async function getMemberStore(userId: number, storeId: number) {
-  return await prisma.collaborator.findUnique({
+  return await prisma.collaboratorShop.findUnique({
     where: {
       shopId_userId: {
         userId,
@@ -102,7 +102,7 @@ export async function createShop(userId: number, data: CreateShopProps) {
         name: data.name,
         shortName: data.shortName,
         subdomain: data.subdomain,
-        Collaborator: {
+        CollaboratorShop: {
           create: {
             role: 'OWNER',
             userId: userId,

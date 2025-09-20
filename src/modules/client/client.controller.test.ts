@@ -11,7 +11,7 @@ jest.mock('./client.service', () => ({
 
 const mockedFindClientByEmail = clientService.findClientByEmail as jest.Mock;
 const mockedGetAllClients = clientService.GetAllClients as jest.Mock;
-const mockedCountAllClients = clientService.CountAllClients as jest.Mock;
+const mockedCountAllClients = clientService.GetAllClients as jest.Mock;
 
 // Helpers para simular Request e Response
 const mockResponse = () => {

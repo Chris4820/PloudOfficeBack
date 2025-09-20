@@ -9,10 +9,10 @@ const custom_error_1 = require("../commons/errors/custom.error");
 // Middleware de autenticação
 async function AuthMiddleware(req, res, next) {
     try {
-        console.log("authhh");
         const token = extractTokenFromHeader(req);
+        console.log(token);
         if (!token) {
-            throw new custom_error_1.UnauthorizedException("Sessão nao existe");
+            throw new custom_error_1.UnauthorizedException("Sessão de auth nao existe");
         }
         const secret = process.env.JWT_SECRET_TOKEN_AUTH;
         const decoded = jsonwebtoken_1.default.verify(token, secret);

@@ -40,7 +40,7 @@ export async function CreateAppointment(storeId: number, data: AppointmentType, 
           id: storeId
         }
       },
-      User: {
+      Collaborator: {
         connect: {
           id: data.collabId
         }
@@ -103,7 +103,7 @@ export async function getAppointmentClient(clientId: number, shopId: number) {
       duration: true,
       price: true,
       createdAt: true,
-      User: {
+      Collaborator: {
         select: {
           id: true,
           name: true,
@@ -143,7 +143,7 @@ export async function getAppointmentById(appointmentId: number, shopId: number) 
       duration: true,
       price: true,
       createdAt: true,
-      User: {
+      Collaborator: {
         select: {
           id: true,
           name: true,

@@ -3,7 +3,7 @@ import prisma from "../../libs/prisma";
 
 
 export async function getUserByEmail(email: string) {
-  return await prisma.user.findUnique({
+  return await prisma.collaborator.findUnique({
     where: {
       email,
     },
@@ -19,7 +19,7 @@ export async function getUserByEmail(email: string) {
 }
 
 export async function updatePassword(userId: number, newPassword: string) {
-  return await prisma.user.update({
+  return await prisma.collaborator.update({
     where: {
       id: userId,
     },
