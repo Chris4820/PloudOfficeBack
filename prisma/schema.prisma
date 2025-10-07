@@ -8,23 +8,22 @@ datasource db {
 }
 
 model Collaborator {
-  id                  Int                   @id @default(autoincrement())
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @default(now()) @updatedAt
-  email               String                @unique
-  imageUrl            String?
-  lastLogin           DateTime              @default(now())
-  name                String
-  password            String
-  phone               String?
-  shortName           String                @default("")
-  sidebarOpen         Boolean               @default(true)
-  theme               ThemeEnum             @default(LIGHT)
-  Appointment         Appointment[]
-  CollaboratorService CollaboratorService[]
-  CollaboratorShop    CollaboratorShop[]
-  Schedule            Schedule[]
-  Shop                Shop[]
+  id               Int                @id @default(autoincrement())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now()) @updatedAt
+  email            String             @unique
+  imageUrl         String?
+  lastLogin        DateTime           @default(now())
+  name             String
+  password         String
+  phone            String?
+  shortName        String             @default("")
+  sidebarOpen      Boolean            @default(true)
+  theme            ThemeEnum          @default(LIGHT)
+  Appointment      Appointment[]
+  CollaboratorShop CollaboratorShop[]
+  Schedule         Schedule[]
+  Shop             Shop[]
 }
 
 model Shop {
@@ -114,17 +113,15 @@ model Service {
 }
 
 model CollaboratorService {
-  id                 Int               @id @default(autoincrement())
-  serviceId          Int
-  price              Int
-  duration           Int
-  isActive           Boolean           @default(true)
-  notes              String?
-  collaboratorId     Int
-  collaboratorShopId Int?
-  Collaborator       Collaborator      @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
-  CollaboratorShop   CollaboratorShop? @relation(fields: [collaboratorShopId], references: [id])
-  Service            Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  id             Int              @id @default(autoincrement())
+  serviceId      Int
+  price          Int
+  duration       Int
+  isActive       Boolean          @default(true)
+  notes          String?
+  collaboratorId Int
+  Collaborator   CollaboratorShop @relation(fields: [collaboratorId], references: [id])
+  Service        Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@unique([collaboratorId, serviceId])
   @@index([collaboratorId, serviceId])

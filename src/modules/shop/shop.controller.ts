@@ -42,7 +42,7 @@ export async function CreateShopController(req: Request, res: Response, next: Ne
       address: data.address,
       phone: data.phone,
       shopType: data.storeType as ShopTypeEnum,
-      subdomain: data.subdomain + '.ploudoffice.com',
+      subdomain: data.subdomain + '.ploudstore.com',
       shortName: await generateShortName(data.name),
     }
     await createShop(req.userId, currentStore);

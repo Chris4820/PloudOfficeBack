@@ -187,13 +187,13 @@ export async function GetAllCollabsFromService(storeId: number, serviceId: numbe
     where: {
       serviceId,
       isActive: true,
-      CollaboratorShop: {
+      Service: {
         shopId: storeId,
       }
     },
     select: {
       id: true,
-      CollaboratorShop: {
+      Collaborator: {
         select: {
           Collaborator: {
             select: {
@@ -202,7 +202,6 @@ export async function GetAllCollabsFromService(storeId: number, serviceId: numbe
               email: true,
             }
           }
-
         }
       },
       collaboratorId: true,
